@@ -414,12 +414,9 @@ class Layers(QMainWindow):
 
         elif self.ui.list.currentText() == "GlobalAveragePool2D" or current == "GlobalAveragePool2D" or (
             self.ui.list.currentText() == "GlobalMaxPool2D" or current == "GlobalMaxPool2D"):
-            self.ui.par2_label.setText("Data format")
-            self.ui.par2_label.setTooltip("Строка, описывающая порядок измерений во входных данных")
-            self.ui.par1_label.setText("Keepdims")
-            self.ui.par1_label.setTooltip("Хранить или нет пространственные измерения")
-            self.hide_elements(number=2, bool_number=1)
-            self.ui.par1.setVisible(False)
+            self.ui.par1_label.setText("Data format")
+            self.ui.par1_label.setTooltip("Строка, описывающая порядок измерений во входных данных")
+            self.hide_elements(number=1)
 
         elif self.ui.list.currentText() == "SeparableConv2D" or current == "SeparableConv2D":
             self.ui.par1_label.setText("Use bias")
@@ -592,7 +589,6 @@ class Layers(QMainWindow):
             if len(self.inputShape) != 0:
                 results += "input_shape=" + self.inputShape + "; "
             results += "data_format=" + self.ui.par2.text() if len(self.ui.par1.text()) !=0 else "None" + "; "
-            results += "keepdims=" + str(self.ui.boolcheck1.isCheck())
             return True, results
 
         elif self.ui.list.currentText() == "GlobalMaxPool2D":
@@ -600,7 +596,6 @@ class Layers(QMainWindow):
             if len(self.inputShape) != 0:
                 results += "input_shape=" + self.inputShape + "; "
             results += "data_format=" + self.ui.par2.text() if len(self.ui.par1.text()) !=0 else "None" + "; "
-            results += "keepdims=" + str(self.ui.boolcheck1.isCheck())
             return True, results
 
         elif self.ui.list.currentText() == "MaxPool2D":

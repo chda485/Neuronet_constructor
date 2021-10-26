@@ -4,7 +4,10 @@ import numpy as np
 import keras
 from sklearn.preprocessing import LabelBinarizer
 
-class NetBuilder():    
+class NetBuilder():
+    def __init__(self):
+        self.classes = None
+    
     def preprocess_data(self, file, shape):
         return cv2.reshape(file, shape)
     
@@ -22,6 +25,7 @@ class NetBuilder():
         X_tuple = (X_train, X_val, X_test)
         Y_tuple = (Y_train, Y_val, Y_test)
         for element in zip(dir_tuple, X_tuple, Y_tuple):
+            self.classes = os.listdir(element[0])
             for classes in os.listdir(element[0]):
                 for files in os.listdir(os.path.join(element[0], classes)):
                     file = cv2.imread(os.path.join(element[0], classes, files))
@@ -46,25 +50,20 @@ class NetBuilder():
         return (X_train, X_val, X_test), (Y_train, Y_val, Y_test)
         
     def build_model(self, model_name, inputShape, dataset=None):
-        print("metcha1")
         model_class = helper.LISTS_NEURONETS[model_name]
         shape = inputShape.split(',')
         new_shape = []
         for s in shape:
             new_shape.append(int(s))
-        print("metcha2")
         if dataset:
             dir_ = os.listdir(dataset)[0]
-            print("metcha3")
             classes = len(os.listdir(os.path.join(dataset, dir_)))
             return model_class.build(new_shape, classes)
         else: return model_class.build(new_shape)
 
     def model_train(self, model, opt, loss_fun, metric,
-                    epochs, dataset_path, batch_size=32):
-        print("metcha4")
+                    epochs, dataset_path, batch_size=32, detail_result=False):
         X, Y = self.prepare_data(dataset_path)
-        print("metcha5")
         if type(opt) == str:
             optimizer = opt.lower()
         else: 
@@ -79,7 +78,14 @@ class NetBuilder():
         print(optimizer)
         print(metric)
         model.compile(loss=loss, optimizer=optimizer, metrics=[metric])
+        
+        #СДЕЛАТЬ БЛОКИРОВКУ ВЫВОДА В КОНСОЛЬ, ЕСЛИ НЕ ВЫБРАН ПОДРОБНЫЙ ОТЧЕТ О ХОДЕ ОБУЧЕНИЯ
         H = model.fit(X[0], Y[0], validation_data=(X[1], Y[1]),
                       batch_size=batch_size, epochs=int(epochs))
-        return H
+        #ЕСЛИ ДЕЛАЛИ БЛОКИРОВКУ, ЗДЕСЬ СНЯТЬ ЕЁ
+        
+        if detail_result:           
+            helper.print_predictions(model, self.classes, batch_size,
+                                     X[2], Y[2])
+        return H, model
     

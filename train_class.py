@@ -35,6 +35,7 @@ class TrainWindow(QMainWindow):
         self.loss = None
         self.metric = None
         self.callback = None
+        self.neuronet = None
 
         self.settings = None #переменная для класса с настройками оптимизаторов, метрик и т.п.
         
@@ -48,6 +49,8 @@ class TrainWindow(QMainWindow):
         self.ui.auto_input.setChecked(True)
         self.ui.input_win.setEnabled(False)
         self.ui.callbacks_settings.setEnabled(False)
+        self.ui.model_path.setEnabled(False)
+        self.ui.weights_path.setEnabled(False)
         
         self.ui.list_check.clicked.connect(self.list_choice)
         self.ui.disk_check.clicked.connect(self.disk_choice)
@@ -59,6 +62,8 @@ class TrainWindow(QMainWindow):
         self.ui.train_button.clicked.connect(self.train)
         self.ui.disk_button.clicked.connect(self.choice_file)
         self.ui.construct_button.clicked.connect(self.show_construct)
+        self.ui.model_check.stateChanged.connect(self.model_choice)
+        self.ui.weights_check.stateChanged.connect(self.weights_choice)
         
         self.ui.path_diagram.clicked.connect(lambda:self.save_file(0, 0))
         self.ui.file_plots.clicked.connect(lambda:self.save_file(0, 1))
@@ -109,12 +114,30 @@ class TrainWindow(QMainWindow):
 
     def inputs_self_choice(self):
         self.ui.input_win.setEnabled(True)
+        
+    def model_choice(self, state):
+        if state == QtCore.Qt.Checked:
+            self.ui.model_path.setEnabled(True)
+        else:
+            self.ui.model_path.setEnabled(False)
+            
+    def weights_choice(self, state):
+        if state == QtCore.Qt.Checked:
+            self.ui.weights_path.setEnabled(True)
+        else:
+            self.ui.weights_path.setEnabled(False)
     """---------------------------------------"""
 
     def show_construct(self):
         self.construct_window = construct_class.ConstructWindow()
         self.construct_window.setWindowModality(QtCore.Qt.ApplicationModal)
+        self.construct_window.save_button.clicked.connect(self.get_neuronet)
         self.construct_window.show()
+        
+    def get_neuronet(self):
+        status, net = self.construct_window.send_model
+        if status:
+            self.neuronet = net
     
     def choice_file(self):
         #читаем путь к файлу модели
@@ -129,27 +152,29 @@ class TrainWindow(QMainWindow):
         #если сохраняем картинку
         if name == 0:
             path = QtWidgets.QFileDialog.getSaveFileName(self,
-                                                         filter="PNG files(*.png)")           
-            #если картинка диаграммы
-            if file == 0:
-                self.diagramm_file = path
-                self.ui.console_train.append("Diagramm path: \n" + path[0])
-            #если картинка графиков обучения
-            else:
-                self.plots_file = path
-                self.ui.console_train.append("Plots path: \n" + path[0])
+                                                         filter="PNG files(*.png)")
+            if len(path[0]) > 0:
+                #если картинка диаграммы
+                if file == 0:
+                    self.diagramm_file = path
+                    self.ui.console_train.append("Diagramm path: \n" + path[0])
+                #если картинка графиков обучения
+                else:
+                    self.plots_file = path
+                    self.ui.console_train.append("Plots path: \n" + path[0])
         #если сохраняем keras-файлы
         elif name == 1:
             path = QtWidgets.QFileDialog.getSaveFileName(self,
                                                          filter="Keras files(*.h5)")
-            #если сохраняем обученную модель
-            if file == 0:
-                self.model_path = path
-                self.ui.console_train.append("Model path for saving: \n" + path[0])
-            #если сохраняем веса модели
-            else:
-                self.path_weights = path
-                self.ui.console_train.append("Weights path: \n" + path[0])
+            if len(path[0]) > 0:
+                #если сохраняем обученную модель
+                if file == 0:
+                    self.model_path = path
+                    self.ui.console_train.append("Model path for saving: \n" + path[0])
+                #если сохраняем веса модели
+                else:
+                    self.path_weights = path
+                    self.ui.console_train.append("Weights path: \n" + path[0])
 
     def open_dataset(self):
         self.dataset_path = QtWidgets.QFileDialog.getExistingDirectory(self)
@@ -192,7 +217,6 @@ class TrainWindow(QMainWindow):
         if win_type == 0:
             self.settings = settings_class.Settings(current_text=self.ui.opts_list.currentText(),
                                                     win_type=win_type)
-            print(self.ui.opts_list.currentText())
         #если настройки функции потерь
         elif win_type == 1:
             self.settings = settings_class.Settings(current_text = self.ui.loss_list.currentText(),
@@ -304,13 +328,40 @@ class TrainWindow(QMainWindow):
             if not self.diagramm_file:
                 os.remove(path)
         
-        results = builder.model_train(model, self.opt, self.loss, self.metric,
-                                         self.ui.epochs.text(), self.dataset_path)
+        if not self.ui.otchet_check.isChecked():
+            devnull = open(os.devnull, "w"):
+            old = sys.stdout
+            sys.stdout = devnull
 
-        if self.ui.display_plots.isChecked() or self.plots_file is not None:
-            continue
+        results, model = builder.model_train(model, self.opt, self.loss, self.metric,
+                                         self.ui.epochs.text(), self.dataset_path,
+                                         detail_result=self.ui.result_check.isChecked())
+        
+        if not self.ui.otchet_check.isChecked():
+            sys.stdout = old
+
+        plots = self.ui.display_plots.isChecked()
+        if plots or self.plots_file is not None:
+            if self.plots_file is not None:
+                path = self.plots_file + "\training_plots.png"
+            else:
+                path = "training_plots.png"
+            helper.show_plot(results, int(self.ui.epochs.text()), path, plots)
+        
+        if self.ui.model_check.isChecked() and len(self.model_path) != 0:
+            model.save(self.model_path)
+            
+        if self.ui.weights_check.isChecked() and len(self.path_weights) != 0:
+            model.save_weights(self.path_weights)
+            
         
         if os.path.exists("incl_fun.py"):
             os.remove("incl_fun.py")
             
         print(results[0])
+
+    def write(self, text):
+        self.ui.console_train.append(str(text))
+        
+    def flush(self):
+        sys.stdout.flush()

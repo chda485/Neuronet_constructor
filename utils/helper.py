@@ -3,8 +3,9 @@ import nets
 import os, cv2, shutil
 import matplotlib.pyplot as plt
 from sklearn.metrics import classification_report
+import numpy as np
 
-"""
+
 LISTS_NEURONETS = {
     "LeNet": nets.LeNet, "AlexNet": nets.AlexNet,
     "MiniVGGNet": nets.MiniVGGNet, "ShallowNet": nets.ShallowNet,
@@ -31,7 +32,7 @@ LISTS_NEURONETS = [
     "Xception", "GoggleNet",
     "DenseNet"
     ]
-
+"""
 
 LIST_LOSSES = {
     "BinaryCrossentropy": "binary_crossentropy", "CategoricalCrossentropy": "categorical_crossentropy",
@@ -129,13 +130,13 @@ def check_settings(settings, bools=(None,None), fun=None):
         return answer
     return answer
     
-def include_function(path, current):#скорректировать current!!!!!!!
+def include_function(path, current):#
     #получаем путь к файлу
     base = os.path.basename(path)
     length = len(base) + 1
     folder_path = path[:-length]
     #путь к новому файлу функции
-    new = os.path.join(current, "incl_fun.py")
+    new = os.path.join(folder_path, "incl_fun.py")
     #копируем файл в новое расположение
     shutil.copyfile(path, new)
     #читаем содержимое исходного файла
@@ -163,18 +164,21 @@ def include_function(path, current):#скорректировать current!!!!!
     import incl_fun
     return incl_fun.fun
 
-def show_plot(H):
+def show_plot(H, epochs, path=None, save_plots=False):
     plt.style.use("ggplot")
     plt.figure()
-    plt.plot(np.arange(0,100), H.history["loss"], label="train_loss")
-    plt.plot(np.arange(0,100), H.history["accuracy"], label="train_accuracy")
-    plt.plot(np.arange(0,100), H.history["val_loss"], label="val_loss")
-    plt.plot(np.arange(0,100), H.history["val_accuracy"], label="val_accuracy")
-    plt.title("Flowers17")
+    plt.plot(np.arange(0, epochs), H.history["loss"], label="train_loss")
+    plt.plot(np.arange(0, epochs), H.history["accuracy"], label="train_accuracy")
+    plt.plot(np.arange(0, epochs), H.history["val_loss"], label="val_loss")
+    plt.plot(np.arange(0, epochs), H.history["val_accuracy"], label="val_accuracy")
+    plt.title("Training plots")
     plt.xlabel("Epoch")
     plt.ylabel("Loss/accuracy")
     plt.legend()
-    plt.show()
+    if save_plots:
+        plt.savefig(path)
+    else:
+        plt.show()
 
 def print_predictions(model, target_names, batch, testX, testY):
     predictions = model.predict(testX, batch_size=batch)

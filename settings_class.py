@@ -196,12 +196,10 @@ class Settings(QMainWindow):
             self.ui.list.currentText() == "CategoricalCrossentropy" or loss == "CategoricalCrossentropy"):
             self.ui.par2_label.setText("From logits")
             self.ui.par3_label.setText("Label smoothing")
-            self.ui.par4_label.setText("Axis")
-            self.ui.par4_label.setToolTip("Ось, вдоль которой рассчитывается функция потерь")
-            self.logic.hide_elements(self.ui, 4, bool_num=1)
+            self.logic.hide_elements(self.ui, 3, bool_num=1)
             self.ui.par2.setVisible(False)
-            self.resize(300, 260)
-            self.ui.buttons.move(110, 220)
+            self.resize(300, 230)
+            self.ui.buttons.move(110, 180)
 
         elif (self.ui.list.currentText() == "SparseCategorical") or (loss == "SparseCategorical"):
             self.ui.par2_label.setText("From logits")
@@ -294,17 +292,15 @@ class Settings(QMainWindow):
             tooltip = "писок значений, использующихся как порог для дискретизации кривой\n"
             tooltip += "Если установлено, то параметр Num thresholds игнорируется"
             self.ui.par7_label.setToolTip(tooltip)
-            self.ui.par8_label.setText("Num_labels")
-            self.ui.par8_label.setToolTip("Число меток, используемых когда Multi labels установлено")
-            self.ui.par9_label.setText("Labels weights") 
+            self.ui.par8_label.setText("Labels weights") 
             tooltip = "Список, массив или тензор неотрицательных весов для рассчёта метрики для многоклассовых данных\n"
             tooltip = "Введите значения через запятую"
-            self.ui.par9_label.setToolTip(tooltip)
-            self.logic.hide_elements(self.ui, 9, bool_num=2)
+            self.ui.par8_label.setToolTip(tooltip)
+            self.logic.hide_elements(self.ui, 8, bool_num=2)
             self.ui.par2.setVisible(False)
             self.ui.par3.setVisible(False)
-            self.resize(300, 460)
-            self.ui.buttons.move(110, 420)
+            self.resize(300, 420)
+            self.ui.buttons.move(110, 380)
 
         elif (self.ui.list.currentText() == "Precision" or metric == "Precision") or (
             self.ui.list.currentText() == "Recall" or metric == "Recall"):
@@ -333,33 +329,27 @@ class Settings(QMainWindow):
             self.ui.par2_label.setToolTip("Скалярное значение от 0 до 1")
             self.ui.par3_label.setText("Num thresholds")
             self.ui.par3_label.setToolTip("Количество пороговых значений для рассчёта метрики")
-            self.ui.par4_label.setText("Class ID")
-            self.ui.par4_label.setToolTip("Целочисленное ID для которого нужны бинарные метрики")
-            self.logic.hide_elements(self.ui, 4)
-            self.resize(300, 260)
-            self.ui.buttons.move(110, 220)
+            self.logic.hide_elements(self.ui, 3)
+            self.resize(300, 230)
+            self.ui.buttons.move(110, 180)
 
         elif (self.ui.list.currentText() == "SensitivityAtSpecificity" or metric == "SensitivityAtSpecificity"):
             self.ui.par2_label.setText("Specificity")
             self.ui.par2_label.setToolTip("Скалярное значение от 0 до 1")
             self.ui.par3_label.setText("Num thresholds")
             self.ui.par3_label.setToolTip("Количество пороговых значений для рассчёта метрики")
-            self.ui.par4_label.setText("Class ID")
-            self.ui.par4_label.setToolTip("Целочисленное ID для которого нужны бинарные метрики")
-            self.logic.hide_elements(self.ui, 4)
-            self.resize(300, 260)
-            self.ui.buttons.move(110, 220)
+            self.logic.hide_elements(self.ui, 3)
+            self.resize(300, 230)
+            self.ui.buttons.move(110, 180)
 
         elif (self.ui.list.currentText() == "SpecificityAtSensitivity" or metric == "SpecificityAtSensitivity"):
             self.ui.par2_label.setText("Sensitivity")
             self.ui.par2_label.setToolTip("Скалярное значение от 0 до 1")
             self.ui.par3_label.setText("Num thresholds")
             self.ui.par3_label.setToolTip("Количество пороговых значений для рассчёта метрики")
-            self.ui.par4_label.setText("Class ID")
-            self.ui.par4_label.setToolTip("Целочисленное ID для которого нужны бинарные метрики")
-            self.logic.hide_elements(self.ui, 4)
-            self.resize(300, 260)
-            self.ui.buttons.move(110, 220)
+            self.logic.hide_elements(self.ui, 3)
+            self.resize(300, 230)
+            self.ui.buttons.move(110, 180)
 
         elif (self.ui.list.currentText() == "MeanIoU" or metric == "MeanIou"):
             self.ui.par2_label.setText("Num classes")
@@ -473,7 +463,7 @@ class Settings(QMainWindow):
             self.ui.par1.setVisible(False)
             self.resize(300, 230)
             self.ui.buttons.move(110, 180)
-            self.ui.fun_button1.clicked.connect(lambda: self.logic.choice_fun_file(
+            self.ui.fun_button.clicked.connect(lambda: self.logic.choice_fun_file(
                 obj=self))
             
         elif self.ui.list.currentText() == "ModelCheckpoint" or callback == "ModelCheckpoint":

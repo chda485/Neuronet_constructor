@@ -8,6 +8,8 @@ import sys
 import os
 sys.path.append("utils")
 from utils import helper 
+from keras import models, layers
+import numpy as np
 
 class ConstructWindow(QMainWindow):
     def __init__(self, parent=None):
@@ -25,6 +27,7 @@ class ConstructWindow(QMainWindow):
         self.changed_layer = None
         
         self.ui.list_layers.setModel(self.model)
+        self.neuronet = None
         
     def show_layers(self, collect=False):
         #если окно вызывается из кнопки "изменить слой"
@@ -62,7 +65,7 @@ class ConstructWindow(QMainWindow):
                                             "Пожалуйста, выбирете только один слой для редактирования")
             return
         #если выбран один объект списка, выбираем его по индексу и возвращаем его текст
-        self.currentItem = self.list_layers.itemFromIndex(index[0])
+        self.currentItem = self.ui.list_layers.itemFromIndex(index[0])
         return self.currentItem.text()
         
     def delete_layers(self, layers):
@@ -80,4 +83,53 @@ class ConstructWindow(QMainWindow):
         for layer in layers:
             #построчно удаляем слои
             self.list_layers.removeRows(layer, 1)
+            
+    def construct_model(self):
+        layers_count = self.ui.list_layers.rowCount()
+        model = models.Sequentials()
+        for i in layers_count:
+            layer = self.ui.list_layers.item(i).text()
+            layer_name = layer.split(':')[0]
+            layer_settings = layer.replace(' ', '').split(';')
+            layer_settings = [setting.split('=') for setting in layer_settings]
+            
+            if layer_name == "Dense":
+                units = np.asarray([unit for unit in layer_settings if unit[0] == 'units'])
+                units = int(units[0][1]) if len(units[0] != 0) else 32               
+                activation = np.asarray([unit for unit in layer_settings if unit[0] == 'activation'])
+                activation = activation[0][1] if len(activation[0]) != 0 else None
+                use_bias = np.asarray([unit for unit in layer_settings if unit[0] == 'use_bias'])
+                use_bias = use_bias[0][1] if len(use_bias[0] != 0) else True             
+                kernel_initializer = np.asarray([unit for unit in layer_settings if unit[0] == 'kernel_initializer'])
+                kernel_initializer = kernel_initializer[0][1] if len(
+                                     kernel_initializer[0] != 0) else "glorot_uniform"          
+                bias_initializer = np.asarray([unit for unit in layer_settings if unit[0] == 'bias_initializer'])
+                bias_initializer = bias_initializer[0][1] if len(bias_initializer[0] != 0) else "zeros"           
+                kernel_regularizer = np.asarray([unit for unit in layer_settings if unit[0] == 'kernel_regularizer'])
+                kernel_regularizer = kernel_regularizer[0][1] if len(kernel_regularizer[0] != 0) else None               
+                bias_regularizer = np.asarray([unit for unit in layer_settings if unit[0] == 'bias_regularizer'])
+                bias_regularizer = bias_regularizer[0][1] if len(bias_regularizer[0] != 0) else None               
+                activity_regularize = np.asarray([unit for unit in layer_settings if unit[0] == 'activity_regularize'])
+                activity_regularize = activity_regularize[0][1] if len(activity_regularize[0] != 0) else None            
+                kernel_constraint = np.asarray([unit for unit in layer_settings if unit[0] == 'kernel_constraint'])
+                kernel_constraint = kernel_constraint[0][1] if len(kernel_constraint[0] != 0) else None             
+                bias_constraint = np.asarray([unit for unit in layer_settings if unit[0] == 'bias_constraint'])
+                bias_constraint = bias_constraint[0][1] if len(bias_constraint[0] != 0) else None
+                
+                if len([sett for sett in layer_settings if set[0] == 'input_shape'][0]) != 0:
+                    pass
+                model.add(layers.Dense(units, activation=None, use_bias=True, kernel_initializer="glorot_uniform",
+                                bias_initializer="zeros", kernel_regularizer=None, bias_regularizer=None,
+                                activity_regularizer=None, kernel_constraint=None, bias_constraint=None))
+            
+        self.neuronet = model
+        
+    def send_model(self):
+        if self.neuronet is not None:
+            return True, self.neuronet
+        else:
+            return False, None
+            
+            
+            
 

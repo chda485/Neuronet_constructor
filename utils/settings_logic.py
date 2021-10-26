@@ -1,7 +1,8 @@
 from PyQt5.QtWidgets import QMainWindow
 from PyQt5 import QtWidgets
-#from keras import optimizers, metrics, losses, callbacks
+from keras import optimizers, metrics, losses, callbacks
 import helper, os
+import numpy as np
 
 
 class SettingsLogic():
@@ -206,106 +207,95 @@ class SettingsLogic():
         	ui.fun_button.setVisible(False)
 
     def pass_opts_settings(self, ui):
+        lr = float(ui.par1.text()) if len(ui.par1.text()) != 0 else 0.01
         if ui.list.currentText() == "SGD":
-            lr = ui.par1.text() if len(ui.par1.text()) != 0 else 0.01
-            momentum = ui.par3.text() if len(ui.par3.text()) != 0 else 0.0
-            opt = optimizers.SGD(learning_rate=float(lr), momentum=float(momentum), 
+            momentum = float(ui.par3.text()) if len(ui.par3.text()) != 0 else 0.0
+            opt = optimizers.SGD(learning_rate=lr, momentum=momentum, 
                                  nesterov=ui.bool_check1.isChecked())
             return True, opt
         
         elif ui.list.currentText() == "RMSprop":
-            lr = ui.par1.text() if len(ui.par1.text()) != 0 else 0.01
             epsilon = ui.par5.text() if len(ui.par5.text()) != 0 else 1e-7
-            momentum = ui.par3.text() if len(ui.par3.text()) != 0 else 0.0
-            rho = ui.par4.text() if len(ui.par4.text()) != 0 else 0.9
-            opt = optimizers.RMSprop(learning_rate=float(lr), epsilon=float(epsilon),
-                                     momentum=float(momentum),
+            momentum = float(ui.par3.text()) if len(ui.par3.text()) != 0 else 0.0
+            rho = float(ui.par4.text()) if len(ui.par4.text()) != 0 else 0.9
+            opt = optimizers.RMSprop(learning_rate=lr, epsilon=epsilon,
+                                     momentum=momentum,
                                      centered=ui.bool_check1.isChecked())
             return True, opt
         
         elif ui.list.currentText() == "Adam":
-            lr = ui.par1.text() if len(ui.par1.text()) != 0 else 0.001
-            beta1 = ui.par4.text() if len(ui.par4.text()) != 0 else 0.9
-            beta2 = ui.par5.text() if len(ui.par5.text()) != 0 else 0.999
-            epsilon = ui.par3.text() if len(ui.par3.text()) != 0 else 1e-7
-            opt = optimizers.Adam(learning_rate=float(lr), beta_1=float(beta1),
-                                  beta_2=float(beta2), epsilon=float(epsilon),
+            beta1 = float(ui.par4.text()) if len(ui.par4.text()) != 0 else 0.9
+            beta2 = float(ui.par5.text()) if len(ui.par5.text()) != 0 else 0.999
+            epsilon = float(ui.par3.text()) if len(ui.par3.text()) != 0 else 1e-7
+            opt = optimizers.Adam(learning_rate=lr, beta_1=beta1,
+                                  beta_2=beta2, epsilon=epsilon,
                                   amsgrad=ui.bool_check1.isChecked())
             return True, opt
         
         elif ui.list.currentText() == "Adadelta":
-            lr = ui.par1.text() if len(ui.par1.text()) != 0 else 0.001
-            epsilon = ui.par3.text() if len(ui.par3.text()) != 0 else 1e-7
-            rho = ui.par2.text() if len(ui.par2.text()) != 0 else 0.95
-            opt = optimizers.Adadelta(learning_rate=float(lr), rho=float(rho),
-                                      epsilon=float(epsilon))
+            epsilon = float(ui.par3.text()) if len(ui.par3.text()) != 0 else 1e-7
+            rho = float(ui.par2.text()) if len(ui.par2.text()) != 0 else 0.95
+            opt = optimizers.Adadelta(learning_rate=lr, rho=rho,
+                                      epsilon=epsilon)
             return True, opt
         
         elif ui.list.currentText() == "Nadam":
-            lr = ui.par1.text() if len(ui.par1.text()) != 0 else 0.001
-            beta1 = ui.par3.text() if len(ui.par3.text()) != 0 else 0.9
-            beta2 = ui.par4.text() if len(ui.par4.text()) != 0 else 0.999
-            epsilon = ui.par2.text() if len(ui.par2.text()) != 0 else 1e-7
-            opt = optimizers.Nadam(learning_rate=float(lr), beta_1=float(beta1),
-                                   beta_2=float(beta2), epsilon=float(epsilon))
+            beta1 = float(ui.par3.text()) if len(ui.par3.text()) != 0 else 0.9
+            beta2 = float(ui.par4.text()) if len(ui.par4.text()) != 0 else 0.999
+            epsilon = float(ui.par2.text()) if len(ui.par2.text()) != 0 else 1e-7
+            opt = optimizers.Nadam(learning_rate=lr, beta_1=beta1,
+                                   beta_2=beta2, epsilon=epsilon)
             return True, opt
         
         elif ui.list.currentText() == "Adagrad":
-            lr = ui.par1.text() if len(ui.par1.text()) != 0 else 0.001
-            in_acc_val = ui.par3.text() if len(ui.par3.text()) != 0 else 0.1
-            epsilon = ui.par2.text() if len(ui.par2.text()) != 0 else 1e-7
-            opt = optimizers.Adagrad(learning_rate=float(lr),
-                                     initial_accumulator_value=float(in_acc_val),
-                                     epsilon=float(epsilon))
+            in_acc_val = float(ui.par3.text()) if len(ui.par3.text()) != 0 else 0.1
+            epsilon = float(ui.par2.text()) if len(ui.par2.text()) != 0 else 1e-7
+            opt = optimizers.Adagrad(learning_rate=lr,
+                                     initial_accumulator_value=in_acc_val,
+                                     epsilon=epsilon)
             return True, opt
         
         elif ui.list.currentText() == "Adamax":
-            lr = ui.par1.text() if len(ui.par1.text()) != 0 else 0.001
-            beta1 = ui.par3.text() if len(ui.par3.text()) != 0 else 0.9
-            beta2 = ui.par4.text() if len(ui.par4.text()) != 0 else 0.999
-            epsilon = ui.par2.text() if len(ui.par2.text()) != 0 else 1e-7
-            opt = optimizers.Adamax(learning_rate=float(lr), beta_1=float(beta1),
-                                   beta_2=float(beta2), epsilon=float(epsilon))
+            beta1 = float(ui.par3.text()) if len(ui.par3.text()) != 0 else 0.9
+            beta2 = float(ui.par4.text()) if len(ui.par4.text()) != 0 else 0.999
+            epsilon = float(ui.par2.text()) if len(ui.par2.text()) != 0 else 1e-7
+            opt = optimizers.Adamax(learning_rate=lr, beta_1=beta1,
+                                   beta_2=beta2, epsilon=epsilon)
             return True, opt
         
         elif ui.list.currentText() == "Ftrl":
-            lr = ui.par1.text() if len(ui.par1.text()) != 0 else 0.001
-            lr_power = ui.lr_power.text() if len(ui.lr_power.text()) != 0 else -0.5
-            in_acc_val = ui.par2.text() if len(ui.par2.text()) != 0 else 0.1
-            l1_reg_str = ui.par3.text() if len(ui.par3.text()) != 0 else 0.0
-            l2_reg_str = ui.par4.text() if len(ui.par4.text()) != 0 else 0.0
-            l2_shrin = ui.par5.text() if len(ui.par5.text()) != 0 else 0.0
-            beta = ui.par6.text() if len(ui.par6.text()) != 0 else 0.0
-            opt = optimizers.Ftrl(learning_rate=float(lr), lr_power=float(lr_power),
-                                  initial_accumulator_value=float(in_acc_val),
-                                  l1_regularization_strength=float(l1_reg_str),
-                                  l2_regularization_strength=float(l2_reg_str),
-                                  l2_shrinkage_regularization_strength=float(l2_shrin),
-                                  beta=float(beta))
+            lr_power = float(ui.lr_power.text()) if len(ui.lr_power.text()) != 0 else -0.5
+            in_acc_val = float(ui.par2.text()) if len(ui.par2.text()) != 0 else 0.1
+            l1_reg_str = float(ui.par3.text()) if len(ui.par3.text()) != 0 else 0.0
+            l2_reg_str = float(ui.par4.text()) if len(ui.par4.text()) != 0 else 0.0
+            l2_shrin = float(ui.par5.text()) if len(ui.par5.text()) != 0 else 0.0
+            beta = float(ui.par6.text()) if len(ui.par6.text()) != 0 else 0.0
+            opt = optimizers.Ftrl(learning_rate=lr, lr_power=lr_power,
+                                  initial_accumulator_value=in_acc_val,
+                                  l1_regularization_strength=l1_reg_str,
+                                  l2_regularization_strength=l2_reg_str,
+                                  l2_shrinkage_regularization_strength=l2_shrin,
+                                  beta=beta)
             return True, opt
 
     def pass_loss_settings(self, ui):
+        reduction = ui.par1.text() if len(ui.par1.text()) != 0 else "auto"
         if ui.list.currentText() == "BinaryCrossentropy":
-            reduction = ui.par1.text() if len(ui.par1.text()) != 0 else "auto"
-            label_smoothing = ui.par3.text() if len(ui.par3.text()) != 0 else 0
-            axis = ui.par4.text() if len(ui.par4.text()) != 0 else -1
-            loss = losses.BinaryCrossentropy(from_logits=ui.bool_check1.isCheck(),
-                                            labels_smothing=int(label_smoothing),
-                                           axis=int(axis), reduction=reduction)
+            label_smoothing = int(ui.par3.text()) if len(ui.par3.text()) != 0 else 0
+            loss = losses.BinaryCrossentropy(from_logits=ui.bool_check1.isChecked(),
+                                            labels_smothing=label_smoothing,
+                                            reduction=reduction)
             return True, loss
 
         elif ui.list.currentText() == "CategoricalCrossentropy":
-            reduction = ui.par1.text() if len(ui.par1.text()) != 0 else "auto"
-            label_smoothing = ui.par3.text() if len(ui.par3.text()) != 0 else 0
-            axis = ui.par4.text() if len(ui.par4.text()) != 0 else -1
-            loss = losses.CategoricalCrossentropy(from_logits=ui.bool_check1.isCheck(),
-                                            labels_smothing=int(label_smoothing),
-                                           axis=int(axis), reduction=reduction)
+            label_smoothing = int(ui.par3.text()) if len(ui.par3.text()) != 0 else 0
+            loss = losses.CategoricalCrossentropy(from_logits=ui.bool_check1.isChecked(),
+                                            labels_smothing=label_smoothing,
+                                            reduction=reduction)
             return True, loss
 
         elif ui.list.currentText() == "SparseCategorical":
-            reduction = ui.par1.text() if len(ui.par1.text()) != 0 else "auto"
-            loss = losses.SparseCategoricalCrossentropy(from_logits=ui.bool_check1.isCheck(),
+            loss = losses.SparseCategoricalCrossentropy(from_logits=ui.bool_check1.isChecked(),
                                                         reduction=reduction)
             return True, loss
 
@@ -313,8 +303,7 @@ class SettingsLogic():
             ui.list.currentText() == "MAE") or (ui.list.currentText() == "MAEPercentage") or (
             ui.list.currentText() == "MSEPLogarithmic") or (ui.list.currentText() == "Hinge") or (
             ui.list.currentText() == "SquaredHinge") or (ui.list.currentText() == "CategoricalHinge") or (
-            ui.list.currentText() == "LogCosh"):
-            reduction = ui.par1.text() if len(ui.par1.text()) != 0 else "auto"
+            ui.list.currentText() == "LogCosh"):           
             if ui.list.currentText() == "Poisson":
                 loss = losses.Poisson(reduction=reduction)
             elif ui.list.currentText() == "MSE":
@@ -336,18 +325,17 @@ class SettingsLogic():
             return True, loss
 
         elif ui.list.currentText() == "CosineSimilarity":
-            reduction = ui.par1.text() if len(ui.par1.text()) != 0 else "auto"
-            axis = ui.par2.text() if len(ui.par2.text()) != 0 else -1
-            loss = losses.CosineSimilarity(axis=int(axis), reduction=reduction)
+            axis = int(ui.par2.text()) if len(ui.par2.text()) != 0 else -1
+            loss = losses.CosineSimilarity(axis=axis, reduction=reduction)
             return True, loss
 
         elif ui.list.currentText() == "Huber":
-            reduction = ui.par1.text() if len(ui.par1.text()) != 0 else "auto"
-            delta = ui.par2.text() if len(ui.par2.text()) != 0 else 1.0
-            loss = losses.CosineSimilarity(delta=float(delta), reduction=reduction)
+            delta = float(ui.par2.text()) if len(ui.par2.text()) != 0 else 1.0
+            loss = losses.CosineSimilarity(delta=delta, reduction=reduction)
             return True, loss
 
     def pass_metric_settings(self, ui):
+        dtype = ui.par1.text() if len(ui.par1.text()) != 0 else None
         if (ui.list.currentText() == "Accuracy") or (ui.list.currentText() == "CategoricalAccuracy") or (
             ui.list.currentText() == "SparseCategorical") or (
             ui.list.currentText() == "Hinge") or (ui.list.currentText() == "SquaredHinge") or (
@@ -356,7 +344,6 @@ class SettingsLogic():
             ui.list.currentText() == "MSE") or (ui.list.currentText() == "RootMSE") or (
             ui.list.currentText() == "MAE") or (ui.list.currentText() == "MAEPercentage") or (
             ui.list.currentText() == "MSELogarithmic") or (ui.list.currentText() == "LogCoshError"):
-            dtype = ui.par1.text() if len(ui.par1.text()) != 0 else None
             if ui.list.currentText() == "Accuracy":
                 metric = metrics.Accuracy(dtype=dtype)
             elif ui.list.currentText() == "CategoricalAccuracy":
@@ -388,129 +375,114 @@ class SettingsLogic():
             return True, metric
 
         elif ui.list.currentText() == "TopKCategorical":
-            dtype = ui.par1.text() if len(ui.par1.text()) != 0 else None
-            k = ui.par2.text() if len(ui.par2.text()) != 0 else 5
-            metric = metrics.TopKCategoricalAccuracy(k=int(k), dtype=dtype)
+            k = int(ui.par2.text()) if len(ui.par2.text()) != 0 else 5
+            metric = metrics.TopKCategoricalAccuracy(k=k, dtype=dtype)
             return True, metric
 
         elif ui.list.currentText() == "SparseTopKCategorical":
-            dtype = ui.par1.text() if len(ui.par1.text()) != 0 else None
-            k = ui.par2.text() if len(ui.par2.text()) != 0 else 5
-            metric = metrics.SparseTopKCategoricalAccuracy(k=int(k), dtype=dtype)
+            k = int(ui.par2.text()) if len(ui.par2.text()) != 0 else 5
+            metric = metrics.SparseTopKCategoricalAccuracy(k=k, dtype=dtype)
             return True, metric
         
         elif ui.list.currentText() == "BinaryAccuracy":
-            dtype = ui.par1.text() if len(ui.par1.text()) != 0 else None
-            threshold = ui.par2.text() if len(ui.par2.text()) != 0 else 0.5
-            metric = metrics.BinaryAccuracy(threshold=float(threshold), dtype=dtype)
+            threshold = float(ui.par2.text()) if len(ui.par2.text()) != 0 else 0.5
+            metric = metrics.BinaryAccuracy(threshold=threshold, dtype=dtype)
             return True, metric
 
         elif ui.list.currentText() == "AUC":
-            dtype = ui.par1.text() if len(ui.par1.text()) != 0 else None
-            num_thresholds = ui.par4.text() if len(ui.par4.text()) != 0 else 200
+            num_thresholds = int(ui.par4.text()) if len(ui.par4.text()) != 0 else 200
             curve = ui.par5.text() if len(ui.par5.text()) != 0 else "ROC"
             summation = ui.par6.text() if len(ui.par6.text()) != 0 else "interpolation"
-            thresholds = ui.par7.text() if len(ui.par7.text()) != 0 else None
-            num_labels = ui.par8.text() if len(ui.par8.text()) != 0 else None
-            label_weights = ui.par9.text() if len(ui.par9.text()) != 0 else None
-            if not label_weights:
-                label_weights = make_array(label_weights)
-            metric = metrics.AUC(num_thresholds=int(num_thresholds), curve=curve,
+            thresholds = float(ui.par7.text()) if len(ui.par7.text()) != 0 else None
+            label_weights = ui.par8.text() if len(ui.par8.text()) != 0 else None
+            if label_weights:
+                label_weights = self.make_array(label_weights)
+            metric = metrics.AUC(num_thresholds=num_thresholds, curve=curve,
                                  summation_method=summation, dtype=dtype,
-                                 thresholds=float(thresholds), multi_label=ui.bool_check1.isCheck(),
-                                 num_labels=int(num_labels), label_weights=label_weights,
-                                 from_logits=ui.bool_check2.isCheck())
+                                 thresholds=thresholds, multi_label=ui.bool_check1.isChecked(),
+                                 label_weights=label_weights)
             return True, metric
 
         elif ui.list.currentText() == "Precision":
-            dtype = ui.par1.text() if len(ui.par1.text()) != 0 else None
-            thresholds = ui.par2.text() if len(ui.par2.text()) != 0 else None
-            topK = ui.par3.text() if len(ui.par3.text()) != 0 else None
-            classID = ui.par4.text() if len(ui.par4.text()) != 0 else None
-            metric = metrics.Precision(threshold=float(threshold), top_k=int(topK),
-                                       class_id=int(classID), dtype=dtype)
+            thresholds = float(ui.par2.text()) if len(ui.par2.text()) != 0 else None
+            topK = int(ui.par3.text()) if len(ui.par3.text()) != 0 else None
+            classID = int(ui.par4.text()) if len(ui.par4.text()) != 0 else None
+            metric = metrics.Precision(threshold=threshold, top_k=topK,
+                                       class_id=classID, dtype=dtype)
             return True, metric
 
         elif ui.list.currentText() == "Recall":
-            dtype = ui.par1.text() if len(ui.par1.text()) != 0 else None
-            thresholds = ui.par2.text() if len(ui.par2.text()) != 0 else None
-            topK = ui.par3.text() if len(ui.par3.text()) != 0 else None
-            classID = ui.par4.text() if len(ui.par4.text()) != 0 else None
-            metric = metrics.Recall(threshold=float(threshold), top_k=int(topK),
-                                       class_id=int(classID), dtype=dtype)
+            thresholds = float(ui.par2.text()) if len(ui.par2.text()) != 0 else None
+            topK = int(ui.par3.text()) if len(ui.par3.text()) != 0 else None
+            classID = int(ui.par4.text()) if len(ui.par4.text()) != 0 else None
+            metric = metrics.Recall(threshold=threshold, top_k=topK,
+                                       class_id=classID, dtype=dtype)
             return True, metric
 
         elif (ui.list.currentText() == "TruePositives") or (ui.list.currentText() == "TrueNegatives") or (
             ui.list.currentText() == "FalsePositives") or (ui.list.currentText() == "FalseNegatives"):
-            dtype = ui.par1.text() if len(ui.par1.text()) != 0 else None
-            thresholds = ui.par2.text() if len(ui.par2.text()) != 0 else None
+            thresholds = float(ui.par2.text()) if len(ui.par2.text()) != 0 else None
             if ui.list.currentText() == "TruePositives":
-                metric = metrics.TruePositives(dtype=dtype, thresholds=float(thresholds))
+                metric = metrics.TruePositives(dtype=dtype, thresholds=thresholds)
             elif ui.list.currentText() == "TrueNegatives":
-                metric = metrics.TrueNegatives(dtype=dtype, thresholds=float(thresholds))
+                metric = metrics.TrueNegatives(dtype=dtype, thresholds=thresholds)
             elif ui.list.currentText() == "FalsePositives":
-                metric = metrics.FalsePositives(dtype=dtype, thresholds=float(thresholds))
+                metric = metrics.FalsePositives(dtype=dtype, thresholds=thresholds)
             elif ui.list.currentText() == "FalseNegatives":
-                metric = metrics.FalseNegatives(dtype=dtype, thresholds=float(thresholds))
+                metric = metrics.FalseNegatives(dtype=dtype, thresholds=thresholds)
             return True, metric
 
         elif (ui.list.currentText() == "PrecisionAtRecall") or (
               ui.lost.currentText() == "SensitivityAtSpecificity") or (
               ui.lost.currentText() == "SpecificityAtSensitivity"):
-            dtype = ui.par1.text() if len(ui.par1.text()) != 0 else None
             if ui.list.currentText() == "PrecisionAtRecall":
-                recall = ui.par2.text() if len(ui.par2.text()) != 0 else None
+                recall = int(ui.par2.text()) if len(ui.par2.text()) != 0 else None
             elif ui.lost.currentText() == "SensitivityAtSpecificity":
-                specificity = ui.par2.text() if len(ui.par2.text()) != 0 else None
+                specificity = int(ui.par2.text()) if len(ui.par2.text()) != 0 else None
             elif ui.lost.currentText() == "SpecificityAtSensitivity":
-                sensitivity = ui.par2.text() if len(ui.par2.text()) != 0 else None
-            num_thresholds = ui.par3.text() if len(ui.par3.text()) != 0 else 200
-            classID = ui.par4.text() if len(ui.par4.text()) != 0 else None
+                sensitivity = int(ui.par2.text()) if len(ui.par2.text()) != 0 else None
+            num_thresholds = int(ui.par3.text()) if len(ui.par3.text()) != 0 else 200
             if ui.list.currentText() == "PrecisionAtRecall":
-                metric = metrics.PrecisionAtRecall(num_thresholds=int(num_thresholds), recall=int(recall),
-                                                   class_id=int(classID), dtype=dtype)
+                metric = metrics.PrecisionAtRecall(num_thresholds=num_thresholds, recall=recall,
+                                                   dtype=dtype)
             elif ui.lost.currentText() == "SensitivityAtSpecificity":
-                metric = metrics.SensitivityAtSpecificity(num_thresholds=int(num_thresholds),
-                                                   specificity=int(specificity),
-                                                   class_id=int(classID), dtype=dtype)
+                metric = metrics.SensitivityAtSpecificity(num_thresholds=num_thresholds,
+                                                   specificity=specificity,
+                                                   dtype=dtype)
             elif ui.lost.currentText() == "SpecificityAtSensitivity":
-                metric = metrics.SpecificityAtSensitivity(num_thresholds=int(num_thresholds),
-                                                          sensitivity=int(sensitivity),
-                                                          class_id=int(classID), dtype=dtype)
+                metric = metrics.SpecificityAtSensitivity(num_thresholds=num_thresholds,
+                                                          sensitivity=sensitivity,
+                                                          dtype=dtype)
             return True, metric
 
         elif ui.list.currentText() == "MeanIoU":
-            dtype = ui.par1.text() if len(ui.par1.text()) != 0 else None
-            classes = ui.par2.text() if len(ui.par2.text()) != 0 else None
-            metric = metrics.MeanIoU(num_classes=int(classes), dtype=dtype)
+            classes = int(ui.par2.text()) if len(ui.par2.text()) != 0 else None
+            metric = metrics.MeanIoU(num_classes=classes, dtype=dtype)
             return True, metric
 
         elif ui.list.currentText() == "BinaryCrossentropy":
-            dtype = ui.par1.text() if len(ui.par1.text()) != 0 else None
-            label_smoothing = ui.par3.text() if len(ui.par3.text()) != 0 else 0
-            metric = metrics.BinaryCrossentropy(from_logits=ui.bool_check1.isCheck(),
-                                            labels_smothing=int(label_smoothing),
+            label_smoothing = int(ui.par3.text()) if len(ui.par3.text()) != 0 else 0
+            metric = metrics.BinaryCrossentropy(from_logits=ui.bool_check1.isChecked(),
+                                            labels_smothing=label_smoothing,
                                             dtype=dtype)
             return True, metric
 
         elif ui.list.currentText() == "CategoricalCrossentropy":
-            dtype = ui.par1.text() if len(ui.par1.text()) != 0 else None
-            label_smoothing = ui.par3.text() if len(ui.par3.text()) != 0 else 0
-            metric = metrics.CategoricalCrossentropy(from_logits=ui.bool_check1.isCheck(),
-                                            labels_smothing=int(label_smoothing),
+            label_smoothing = int(ui.par3.text()) if len(ui.par3.text()) != 0 else 0
+            metric = metrics.CategoricalCrossentropy(from_logits=ui.bool_check1.isChecked(),
+                                            labels_smothing=label_smoothing,
                                             dtype=dtype)
             return True, metric
 
-        elif ui.list.currentText() == "SparseCategorical" or (
+        elif ui.list.currentText() == "SparseCategorical" from_logits or (
              ui.list.currentText() == "CosineSimilarity"):
-            dtype = ui.par1.text() if len(ui.par1.text()) != 0 else None
-            axis = ui.par3.text() if len(ui.par3.text()) != 0 else -1
+            axis = int(ui.par3.text()) if len(ui.par3.text()) != 0 else -1
             if ui.list.currentText() == "SparseCategorical":
-                metric = metrics.SparseCategoricalCrossentropy(from_logits=ui.bool_check1.isCheck(),
-                                                            axis=int(axis), dtype=dtype)
+                metric = metrics.SparseCategoricalCrossentropy(from_logits=ui.bool_check1.isChecked(),
+                                                            axis=axis, dtype=dtype)
             else:
-                metric = metrics.CosineSimilarity(from_logits=ui.bool_check1.isCheck(),
-                                               axis=int(axis), dtype=dtype)
+                metric = metrics.CosineSimilarity(from_logits=ui.bool_check1.isChecked(),
+                                               axis=axis, dtype=dtype)
             return True, metric
 
     def pass_callbacks_settings(self, ui):
@@ -523,20 +495,20 @@ class SettingsLogic():
             file = ui.par1.text() if len(ui.par1.text()) != 0 else None
             sep = ui.par3.text() if len(ui.par3.text()) != 0 else ","
             callback = callbacks.CSVLogger(filename=file, separator=sep,
-                                           append=ui.bool_check1.isCheck())
+                                           append=ui.bool_check1.isChecked())
             return True, callback
 
         elif ui.list.currentText() == "EarlyStopping":
             monitor = ui.par1.text() if len(ui.par1.text()) != 0 else "val_loss"
-            delta = ui.par3.text() if len(ui.par3.text()) != 0 else 0
-            patience = ui.par4.text() if len(ui.par4.text()) != 0 else 0
-            verbose = ui.par5.text() if len(ui.par5.text()) != 0 else 0
+            delta = int(ui.par3.text()) if len(ui.par3.text()) != 0 else 0
+            patience = int(ui.par4.text()) if len(ui.par4.text()) != 0 else 0
+            verbose = int(ui.par5.text()) if len(ui.par5.text()) != 0 else 0
             mode = ui.par6.text() if len(ui.par6.text()) != 0 else "auto"
-            baseline = ui.par7.text() if len(ui.par7.text()) != 0 else None
-            callback = callbacks.EarlyStopping(monitor=monitor, restore_best_weights=ui.bool_check1.isCheck(),
-                                               min_delta=int(delta), patience=int(patience),
-                                               verbose=int(verbose), mode=mode,
-                                               baseline=float(baseline))
+            baseline = float(ui.par7.text()) if len(ui.par7.text()) != 0 else None
+            callback = callbacks.EarlyStopping(monitor=monitor, restore_best_weights=ui.bool_check1.isChecked(),
+                                               min_delta=delta, patience=patience,
+                                               verbose=verbose, mode=mode,
+                                               baseline=baseline)
             return True, callback
 
         elif ui.list.currentText() == "LambdaCallback":
@@ -567,19 +539,19 @@ class SettingsLogic():
                 fun = helper.include_function(self.fun_path, os.getcwd())
             else:
                 fun = None
-            verbose = ui.par2.text() if len(ui.par2.text()) != 0 else 0
-            callback = callbacks.LearningRateScheduler(schedule=fun, verbose=int(verbose))
+            verbose = int(ui.par2.text()) if len(ui.par2.text()) != 0 else 0
+            callback = callbacks.LearningRateScheduler(schedule=fun, verbose=verbose)
             return True, callback
 
         elif ui.list.currentText() == "ModelCheckpoint":
             file = ui.par1.text() if len(ui.par1.text()) != 0 else None
             monitor = ui.par4.text() if len(ui.par4.text()) != 0 else "val_loss"
-            verbose = ui.par5.text() if len(ui.par5.text()) != 0 else 0
+            verbose = int(ui.par5.text()) if len(ui.par5.text()) != 0 else 0
             mode = ui.par6.text() if len(ui.par6.text()) != 0 else "auto"
             save_freq = ui.par7.text() if len(ui.par7.text()) != 0 else "epoch"
-            callback = callbacks.ModelCheckpoint(filepath=file, save_best_only=ui.bool_check1.isCheck(),
-                                                 save_weights_only=ui.bool_check2.isCheck(),
-                                                 verbose=int(verbose), mode=mode,
+            callback = callbacks.ModelCheckpoint(filepath=file, save_best_only=ui.bool_check1.isChecked(),
+                                                 save_weights_only=ui.bool_check2.isChecked(),
+                                                 verbose=verbose, mode=mode,
                                                  monitor=monitor, save_freq=save_freq)
             return True, callback
 
@@ -587,23 +559,23 @@ class SettingsLogic():
             mode = ui.par1.text() if len(ui.par1.text()) != 0 else "samples"
             stateful = ui.par2.text() if len(ui.par2.text()) != 0 else None
             if stateful:
-                stateful = make_array(stateful)
+                stateful = self.make_array(stateful)
             callback = callbacks.ProgbarLogger(count_mode=mode, stateful_metrics=stateful)
             return True, callback
 
         elif ui.list.currentText() == "ReduceLROnPlateau":
             monitor = ui.par1.text() if len(ui.par1.text()) != 0 else "val_loss"
-            factor = ui.par2.text() if len(ui.par2.text()) != 0 else 0.1
-            patience = ui.par3.text() if len(ui.par3.text()) != 0 else 10
-            verbose = ui.par4.text() if len(ui.par4.text()) != 0 else 0
+            factor = int(ui.par2.text()) if len(ui.par2.text()) != 0 else 0.1
+            patience = int(ui.par3.text()) if len(ui.par3.text()) != 0 else 10
+            verbose = int(ui.par4.text()) if len(ui.par4.text()) != 0 else 0
             mode = ui.par5.text() if len(ui.par5.text()) != 0 else "auto"
-            delta = ui.par6.text() if len(ui.par6.text()) != 0 else 0.0001
-            cooldown = ui.par7.text() if len(ui.par7.text()) != 0 else 0
-            min_lr = ui.par8.text() if len(ui.par8.text()) != 0 else 0
-            callback = callbacks.ReduceLROnPlateau(factor=int(factor), patience=int(patience),
-                                                 verbose=int(verbose), mode=mode,
-                                                 monitor=monitor, min_delta=float(delta),
-                                                 cooldown=int(cooldown), min_lr=int(min_lr))
+            delta = float(ui.par6.text()) if len(ui.par6.text()) != 0 else 0.0001
+            cooldown = int(ui.par7.text()) if len(ui.par7.text()) != 0 else 0
+            min_lr = int(ui.par8.text()) if len(ui.par8.text()) != 0 else 0
+            callback = callbacks.ReduceLROnPlateau(factor=factor, patience=patience,
+                                                 verbose=verbose, mode=mode,
+                                                 monitor=monitor, min_delta=delta,
+                                                 cooldown=cooldown, min_lr=min_lr)
             return True, callback
 
         elif ui.list.currentText() == "RemoteMonitor":
@@ -617,7 +589,7 @@ class SettingsLogic():
                 for header in array:
                     dict_[header.split(':')[0]] = header.split(':')[1]
                 headers = dict_
-            callback = callbacks.RemoteMonitor(root=root, send_as_json=ui.bool_check1.isCheck(),
+            callback = callbacks.RemoteMonitor(root=root, send_as_json=ui.bool_check1.isChecked(),
                                                  path=path, field=field, headers=headers)
             return True, callback
 
@@ -625,8 +597,8 @@ class SettingsLogic():
             dir_ = ui.par1.text() if len(ui.par1.text()) != 0 else "logs"
             histogram = ui.par5.text() if len(ui.par5.text()) != 0 else 0
             update = ui.par6.text() if len(ui.par6.text()) != 0 else "epoch"
-            profile = ui.par7.text() if len(ui.par7.text()) != 0 else 2
-            freq = ui.par8.text() if len(ui.par8.text()) != 0 else 0
+            profile = int(ui.par7.text()) if len(ui.par7.text()) != 0 else 2
+            freq = int(ui.par8.text()) if len(ui.par8.text()) != 0 else 0
             metadata = ui.par9.text() if len(ui.par9.text()) != 0 else None
             if metadata:
                 array = np.asarray(metadata.split(','))
@@ -635,11 +607,11 @@ class SettingsLogic():
                     dict_[header.split(':')[0]] = header.split(':')[1]
                 metadata = dict_
             callback = callbacks.TensorBoard(log_dir=dir_, histogram_freq=int(histogram),
-                                             write_graph=ui.bool_check1.isCheck(),
-                                             write_images=ui.bool_check2.isCheck(),
-                                             write_steps_per_second=ui.bool_check3.isCheck(),
-                                             update_freq=update, profile_batch=int(profile),
-                                             embeddings_freq=int(freq), 
+                                             write_graph=ui.bool_check1.isChecked(),
+                                             write_images=ui.bool_check2.isChecked(),
+                                             write_steps_per_second=ui.bool_check3.isChecked(),
+                                             update_freq=update, profile_batch=profile,
+                                             embeddings_freq=freq, 
                                              embeddings_metadata=metadata)
             return True, callback
 
