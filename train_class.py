@@ -329,7 +329,7 @@ class TrainWindow(QMainWindow):
                 os.remove(path)
         
         if not self.ui.otchet_check.isChecked():
-            devnull = open(os.devnull, "w"):
+            devnull = open(os.devnull, "w")
             old = sys.stdout
             sys.stdout = devnull
 

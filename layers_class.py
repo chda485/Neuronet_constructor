@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QMainWindow
-from PyQt5 import QtCore
+from PyQt5 import QtCore, QtWidgets
 from forms import layers_window
 import sys, os
 sys.path.append("utils")
@@ -13,6 +13,7 @@ class Layers(QMainWindow):
         self.inputShape = None
         self.ui.label3.setTooltip("Введите входную форму через запятую")
         self.ui.list.addItems(helper.LIST_LAYERS)
+        self.ui.list.activated.connect(self.set_layers_settings)
         self.ui.checkIsInput.stateChanged.connect(self.choice_input)
         if current_layer:
            self.insert_layer_setting(current_layer)
@@ -484,7 +485,7 @@ class Layers(QMainWindow):
             else:
                 er_win = QtWidgets.QErrirMessage(self)
                 er_win.shoMessage("Не введена входная форма данных")
-                return _, -1
+                return None, -1
             
         if self.ui.list.currentText() == "Activation":
             results += "Activation: "
@@ -646,8 +647,9 @@ class Layers(QMainWindow):
     def insert_layer_settings(self, layer):
         #берём имя слоя, оно слева от :
         layer_name = layer.split(':')[0][:-1]
+        self.ui.list.setCurrentText(layer_name)
         #устанавливаем нужные поля настроек для переданного слоя
-        self.set_layers_settings(current=layers_name)
+        self.set_layers_settings(current=layer_name)
         #получаем все переданные настройки в список элементов имя=значение
         settings = layer.split(':')[1].split(';')
         #разделяем каждый элемент по '='
@@ -657,12 +659,11 @@ class Layers(QMainWindow):
         if len(inputShape) != 0:
             self.inputShape.setText(inputShape)
         
-        if self.ui.list.currentText() == "Activation" or current == "Activation":
+        if layer == "Activation":
             self.ui.par1.setText(
                 [value for value in settings if value[0] == "activation"][0][1])    
         
-        elif self.ui.list.currentText() == "AveragePool2D" or current == "AveragePool2D" or (
-            self.ui.list.currentText() == "MaxPool2D" or current == "MaxPool2D"):
+        elif layer == "AveragePool2D" or layer == "MaxPool2D":
             self.ui.par1.setText(
                 [value for value in settings if value[0] == "pool_size"][0][1])
             self.ui.par2.setText(
@@ -672,7 +673,7 @@ class Layers(QMainWindow):
             self.ui.par4.setText(
                 [value for value in settings if value[0] == "data_format"][0][1])
 
-        elif self.ui.list.currentText() == "Conv2D" or current == "Conv2D":
+        elif layer == "Conv2D":
             self.ui.par2.setText(
                 [value for value in settings if value[0] == "filters"][0][1])
             self.ui.par3.setText(
@@ -704,9 +705,9 @@ class Layers(QMainWindow):
             self.ui.par16.setText(
                 [value for value in settings if value[0] == "bias_constraint"][0][1])
             self.ui.boolcheck1.setCheckState(2) if len(
-                [value for value in settings if value[0] == "activation"][0][1]) != 0 else self.ui.boolcheck1.setChecked(0)
+                [value for value in settings if value[0] == "use_bias"][0][1]) != 0 else self.ui.boolcheck1.setChecked(0)
             
-        elif self.ui.list.currentText() == "Conv2DTranspose" or current == "Conv2DTranspose":
+        elif layer == "Conv2DTranspose":
             self.ui.par2.setText(
                 [value for value in settings if value[0] == "filters"][0][1])
             self.ui.par3.setText(
@@ -738,85 +739,71 @@ class Layers(QMainWindow):
             self.ui.par16.setText(
                 [value for value in settings if value[0] == "bias_constraint"][0][1])
             self.ui.boolcheck1.setCheckState(2) if len(
-                [value for value in settings if value[0] == "activation"][0][1]) != 0 else self.ui.boolcheck1.setChecked(0)
+                [value for value in settings if value[0] == "use_bias"][0][1]) != 0 else self.ui.boolcheck1.setChecked(0)
 
-        elif self.ui.list.currentText() == "Dense" or current == "Dense":
-            self.ui.par1_label.setText("Use bias")
-            self.ui.par1_label.setTooltip("Использовать или нет биас-вектор")
-            self.ui.par2_label.setText("Units")
-            tooltip = "Размерность выходного пространства слоя"
-            self.ui.par2_label.setTooltip(tooltip)
-            self.ui.par3_label.setText("Activation")
-            self.ui.par3_label.setTooltip("Функция активации для слоя")
-            self.ui.par4_label.setText("Kernel initializer")
-            self.ui.par4_label.setTooltip("Инициализатор для весов матрицы ядра")
-            self.ui.par5_label.setText("Bias initializer")
-            self.ui.par5_label.setTooltip("Инициализатор биас-вектора")
-            self.ui.par6_label.setText("Kernel regulizer")
-            self.ui.par6_label.setTooltip("Функция регуляризации для весовой матрицы ядра")
-            self.ui.par7_label.setText("Bias regulizer")
-            self.ui.par7_label.setTooltip("Функция регуляризации, применяемая к вектору биаса")
-            self.ui.par8_label.setText("Activity regulizer")
-            self.ui.par8_label.setTooltip("Функция регуляризации для выхода слоя")
-            self.ui.par9_label.setText("Kernel constraint")
-            self.ui.par9_label.setTooltip("Протяжённая функция, применяемая к ядру матрицы")
-            self.ui.par10_label.setText("Bias constraint")
-            self.ui.par10_label.setTooltip("Протяжённая функция, применяемая к биас-вектору")
-            self.hide_elements(number=10, bool_number=1)
-            self.ui.par1.setVisible(False)
+        elif layer == "Dense":
+            self.ui.par2.setText(
+                [value for value in settings if value[0] == "units"][0][1])
+            self.ui.par3.setText(
+                [value for value in settings if value[0] == "activation"][0][1])
+            self.ui.par4.setText(
+                [value for value in settings if value[0] == "kernel_initializer"][0][1])
+            self.ui.par5.setText(
+                [value for value in settings if value[0] == "bias_initializer"][0][1])
+            self.ui.par6.setText(
+                [value for value in settings if value[0] == "kernel_regularizer"][0][1])
+            self.ui.par7.setText(
+                [value for value in settings if value[0] == "bias_regularizer"][0][1])
+            self.ui.par8.setText(
+                [value for value in settings if value[0] == "activity_regularizer"][0][1])
+            self.ui.par9.setText(
+                [value for value in settings if value[0] == "kernel_constraint"][0][1])
+            self.ui.par10.setText(
+                [value for value in settings if value[0] == "bias_constraint"][0][1])
+            self.ui.boolcheck1.setCheckState(2) if len(
+                [value for value in settings if value[0] == "use_bias"][0][1]) != 0 else self.ui.boolcheck1.setChecked(0)
 
-        elif self.ui.list.currentText() == "GlobalAveragePool2D" or current == "GlobalAveragePool2D" or (
-            self.ui.list.currentText() == "GlobalMaxPool2D" or current == "GlobalMaxPool2D"):
-            self.ui.par2_label.setText("Data format")
-            self.ui.par2_label.setTooltip("Строка, описывающая порядок измерений во входных данных")
-            self.ui.par1_label.setText("Keepdims")
-            self.ui.par1_label.setTooltip("Хранить или нет пространственные измерения")
-            self.hide_elements(number=2, bool_number=1)
-            self.ui.par1.setVisible(False)
+        elif layer == "GlobalAveragePool2D" or layer == "GlobalMaxPool2D":
+            self.ui.par1.setText(
+                [value for value in settings if value[0] == "data_format"][0][1])
 
-        elif self.ui.list.currentText() == "SeparableConv2D" or current == "SeparableConv2D":
-            self.ui.par1_label.setText("Use bias")
-            self.ui.par1_label.setTooltip("Использовать или нет биас-вектор")
-            self.ui.par2_label.setText("Filters")
-            tooltip = "Размерность выходного пространства слоя"
-            self.ui.par2_label.setTooltip(tooltip)
-            self.ui.par3_label.setText("Kernel size")
-            self.ui.par3_label.setTooltip("Размеры окна свёртки")
-            self.ui.par4_label.setText("Strides")
-            self.ui.par4_label.setTooltip("Шаги свёртки изображения")
-            self.ui.par5_label.setText("Padding")
-            tooltip = "Может быть valid, тогда нет отступов\n"
-            tooltip += "Или same, тогда равномерные отступы так, чтобы выход был такой же, как вход"
-            self.ui.par5_label.setTooltip(tooltip)
-            self.ui.par6_label.setText("Data format")
-            self.ui.par6_label.setTooltip("Строка, описывающая порядок измерений во входных данных")
-            self.ui.par7_label.setText("Dilation rate")
-            self.ui.par7_label.setTooltip("Значение, описывающее уровень дилатации для свёртки")
-            self.ui.par8_label.setText("Depth multi")
-            tooltip = "Количество выходных каналов сёрток по глубине для каждого входного канала"
-            self.ui.par8_label.setTooltip(tooltip)
-            self.ui.par9_label.setText("Activation")
-            self.ui.par9_label.setTooltip("Функция активации для слоя")
-            self.ui.par10_label.setText("Depth initializer")
-            self.ui.par10_label.setTooltip("Инициализатор для ядра свёрток по глубине")
-            self.ui.par11_label.setText("Point initializer")
-            self.ui.par11_label.setTooltip("Инициализатор для ядра свёрток по точкам")
-            self.ui.par12_label.setText("Bias initializer")
-            self.ui.par12_label.setTooltip("Инициализатор биас-вектора")
-            self.ui.par13_label.setText("Depth regulizer")
-            self.ui.par13_label.setTooltip("Функция регуляризации для матрицы глубинного ядра")
-            self.ui.par14_label.setText("Point regulizer")
-            self.ui.par14_label.setTooltip("Функция регуляризации для матрицы ядра точек")
-            self.ui.par15_label.setText("Bias regulizer")
-            self.ui.par15_label.setTooltip("Функция регуляризации, применяемая к вектору биаса")
-            self.ui.par16_label.setText("Activity regulizer")
-            self.ui.par16_label.setTooltip("Функция регуляризации для выхода слоя")
-            self.ui.par17_label.setText("Depth constraint")
-            self.ui.par17_label.setTooltip("Протяжённая функция, применяемая к глубинному ядру матрицы")
-            self.ui.par18_label.setText("Point constraint")
-            self.ui.par18_label.setTooltip("Протяжённая функция, применяемая к ядру точек матрицы")
-            self.ui.par19_label.setText("Bias constraint")
-            self.ui.par19_label.setTooltip("Протяжённая функция, применяемая к биас-вектору")
-            self.hide_elements(number=19)
-            self.ui.par1.setVisible(False)  
+        elif layer == "SeparableConv2D":
+            self.ui.par2.setText(
+                [value for value in settings if value[0] == "filters"][0][1])
+            self.ui.par3.setText(
+                [value for value in settings if value[0] == "kernel_size"][0][1])
+            self.ui.par4.setText(
+                [value for value in settings if value[0] == "strides"][0][1])
+            self.ui.par5.setText(
+                [value for value in settings if value[0] == "padding"][0][1])
+            self.ui.par6.setText(
+                [value for value in settings if value[0] == "data_format"][0][1])
+            self.ui.par7.setText(
+                [value for value in settings if value[0] == "dilation_rate"][0][1])
+            self.ui.par8.setText(
+                [value for value in settings if value[0] == "depth_multiplier"][0][1])
+            self.ui.par9.setText(
+                [value for value in settings if value[0] == "activation"][0][1])
+            self.ui.par10.setText(
+                [value for value in settings if value[0] == "depthwise_initializer"][0][1])
+            self.ui.par11.setText(
+                [value for value in settings if value[0] == "pointwise_initializer"][0][1])
+            self.ui.par12.setText(
+                [value for value in settings if value[0] == "bias_initializer"][0][1])
+            self.ui.par13.setText(
+                [value for value in settings if value[0] == "depthwise_regularizerr"][0][1])
+            self.ui.par14.setText(
+                [value for value in settings if value[0] == "pointwise_regularizerr"][0][1])
+            self.ui.par15.setText(
+                [value for value in settings if value[0] == "bias_regularizer"][0][1])
+            self.ui.par16.setText(
+                [value for value in settings if value[0] == "activity_regularizer"][0][1])
+            self.ui.par17.setText(
+                [value for value in settings if value[0] == "depthwise_constraint"][0][1])
+            self.ui.par18.setText(
+                [value for value in settings if value[0] == "pointwise_constraint"][0][1])
+            self.ui.par19.setText(
+                [value for value in settings if value[0] == "bias_constraint"][0][1])
+            self.ui.boolcheck1.setCheckState(2) if len(
+                [value for value in settings if value[0] == "use_bias"][0][1]) != 0 else self.ui.boolcheck1.setChecked(0)
 
