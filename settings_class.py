@@ -4,7 +4,7 @@ import sys
 sys.path.append("utils")
 from utils import helper
 from utils.settings_logic import SettingsLogic
-#from keras import optimizers 
+#from keras import optimizers
 
 class Settings(QMainWindow):
     def __init__(self, current_text, win_type = 0, parent=None):
@@ -305,7 +305,7 @@ class Settings(QMainWindow):
         elif (self.ui.list.currentText() == "Precision" or metric == "Precision") or (
             self.ui.list.currentText() == "Recall" or metric == "Recall"):
             self.ui.par2_label.setText("Thresholds")
-            self.ui.par2_label.setTooltip("Порог для решения, 1 ли предсказание или 0")
+            self.ui.par2_label.setToolTip("Порог для решения, 1 ли предсказание или 0")
             self.ui.par3_label.setText("Top K")
             self.ui.par3_label.setToolTip("Количество верхних предсказаний для предположения о необходимости рассчёта метрики")
             self.ui.par4_label.setText("Class ID")
@@ -574,6 +574,13 @@ class Settings(QMainWindow):
             self.ui.par4.setVisible(False)
             self.resize(300, 460)
             self.ui.buttons.move(110, 420)
+
+        elif self.ui.list.currentText() == "TerminateOnNaN" or callback == "TerminateOnNaN":
+            self.logic.hide_elements(self.ui, 1)
+            self.ui.par1.setVisible(False)
+            self.ui.par1_label.setVisible(False)
+            self.resize(300, 230)
+            self.ui.buttons.move(110, 180)
             
     def between_wins(self):
         #набор считанных значений параметров

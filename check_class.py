@@ -6,12 +6,13 @@ from forms import check_window
 import sys
 
 class CheckWindow(QMainWindow):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, old_stdout=None):
         QMainWindow.__init__(self, parent)
         self.ui = check_window.Ui_MainWindow()
         self.ui.setupUi(self)
         self.ui.close_button.clicked.connect(self.close)
         self.ui.label.setFocus()
+        self.old_stdout = old_stdout
 
         self.ui.list_check.setChecked(True)
         self.ui.disk_button.setEnabled(False)
@@ -55,7 +56,7 @@ class CheckWindow(QMainWindow):
         self.ui.console_train.append(str(text))
         
     def flush(self):
-        sys.stdout.flush()
+        sys.stdout = self.old_stdout
         
     def proba(self):
         print("proba")

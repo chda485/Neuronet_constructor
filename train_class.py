@@ -5,19 +5,24 @@ import construct_class, settings_class
 import sys, os
 sys.path.append("utils")
 from utils import helper 
-from utils.net_builder import NetBuilder
+#from utils.net_builder import NetBuilder
 import numpy as np
-from keras.models import load_model
+#from keras.models import load_model
 
 class TrainWindow(QMainWindow):
-    def __init__(self, parent=None):
+    def __init__(self, stdout=None, parent=None):
         QMainWindow.__init__(self, parent)
         self.ui = train_window.Ui_MainWindow()
         self.ui.setupUi(self)
+        #установка вывода в консоль если делали перенаправление, для корректной работы отладочных print
+        self.stdout = stdout
+        sys.stdout = stdout
+
         self.setWindowTitle("Обучение нейросети")
         self.ui.close_button.clicked.connect(self.close)
         #назначаем значения всем спискам
-        self.ui.list_of_nets.addItems(helper.LISTS_NEURONETS.keys())
+        self.ui.list_of_nets.addItems(helper.LISTS_NEURONETS)
+        #self.ui.list_of_nets.addItems(helper.LISTS_NEURONETS.keys())
         self.ui.loss_list.addItems(helper.LIST_LOSSES.keys())
         self.ui.metrics_list.addItems(helper.LIST_METRICS)
         self.ui.opts_list.addItems(helper.LIST_OPTS)

@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QMainWindow
 from PyQt5 import QtWidgets
-from keras import optimizers, metrics, losses, callbacks
+#from keras import optimizers, metrics, losses, callbacks
 import helper, os
 import numpy as np
 
@@ -474,7 +474,7 @@ class SettingsLogic():
                                             dtype=dtype)
             return True, metric
 
-        elif ui.list.currentText() == "SparseCategorical" from_logits or (
+        elif ui.list.currentText() == "SparseCategorical" or (
              ui.list.currentText() == "CosineSimilarity"):
             axis = int(ui.par3.text()) if len(ui.par3.text()) != 0 else -1
             if ui.list.currentText() == "SparseCategorical":

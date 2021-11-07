@@ -15,25 +15,23 @@ class MainWindow(QMainWindow):
         self.ui.check_button.clicked.connect(self.show_check)
         self.ui.exit_button.setIcon(QtGui.QIcon('cutton_exit.jpg'))
         self.ui.exit_button.setIconSize(QtCore.QSize(70,70))
+        self.stdout = sys.stdout
 
     def show_train(self):
-        self.train_window = train_class.TrainWindow()
+        self.train_window = train_class.TrainWindow(stdout=self.stdout)
         self.train_window.setWindowModality(QtCore.Qt.ApplicationModal)
         self.train_window.show()
 
     def show_construct(self):
-        self.construct_window = construct_class.ConstructWindow()
+        self.construct_window = construct_class.ConstructWindow(stdout=self.stdout)
         self.construct_window.setWindowModality(QtCore.Qt.ApplicationModal)
         self.construct_window.show()
 
     def show_check(self):
-        self.check_window = check_class.CheckWindow()
-        
+        self.check_window = check_class.CheckWindow(old_stdout=self.stdout)
         sys.stdout = self.check_window
-        
         self.check_window.setWindowModality(QtCore.Qt.ApplicationModal)
         self.check_window.show()
-        
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)

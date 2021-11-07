@@ -1,11 +1,11 @@
-import nets
+#import nets
 #from keras import metrics
 import os, cv2, shutil
 import matplotlib.pyplot as plt
 from sklearn.metrics import classification_report
 import numpy as np
 
-
+"""
 LISTS_NEURONETS = {
     "LeNet": nets.LeNet, "AlexNet": nets.AlexNet,
     "MiniVGGNet": nets.MiniVGGNet, "ShallowNet": nets.ShallowNet,
@@ -18,8 +18,8 @@ LISTS_NEURONETS = {
     "Xception": nets.Xception, "GoggleNet": nets.GoogleNet,
     "DenseNet": nets.DenseNet
     }
-
 """
+
 LISTS_NEURONETS = [
     "LeNet", "AlexNet",
     "MiniVGGNet", "ShallowNet",
@@ -32,7 +32,7 @@ LISTS_NEURONETS = [
     "Xception", "GoggleNet",
     "DenseNet"
     ]
-"""
+
 
 LIST_LOSSES = {
     "BinaryCrossentropy": "binary_crossentropy", "CategoricalCrossentropy": "categorical_crossentropy",
@@ -57,7 +57,7 @@ LIST_METRICS = [
     "Recall", "TruePositives", "TrueNegatives",
     "FalsePositive", "FalseNegative",
     "PrecisionAtRecall", "SensitivityAtSpecificity",
-    "SpecificityAtSensitivity", "MeanloU",
+    "SpecificityAtSensitivity", "MeanIoU",
     "Hinge", "SquaredHinge", "CategoricalHinge"
     ]
 

@@ -8,18 +8,24 @@ import sys
 import os
 sys.path.append("utils")
 from utils import helper 
-from keras import models, layers
+#from keras import models, layers
 import numpy as np
 
 class ConstructWindow(QMainWindow):
-    def __init__(self, parent=None):
+    def __init__(self, stdout=None, parent=None):
         QMainWindow.__init__(self, parent)
         self.ui = construct_window.Ui_MainWindow()
         self.ui.setupUi(self)
+        # установка вывода в консоль если делали перенаправление, для корректной работы отладочных print
+        self.stdout = stdout
+        sys.stdout = stdout
+
         self.ui.close_button.clicked.connect(self.close)
         self.ui.add_button.clicked.connect(self.show_layers)
         self.ui.change_button.clicked.connect(lambda: self.show_layers(collect=True))
         self.ui.delete_button.clicked.connect(lambda: self.delete_layers(self.ui.list_layers.selectedIndexes()))
+        self.ui.file_check.stateChanged.connect(self.file_choice)
+        self.ui.diagramm_path.clicked.connect(self.path_choice)
         self.l_win = None
         self.currentItem = None
         
@@ -28,32 +34,58 @@ class ConstructWindow(QMainWindow):
         
         self.ui.list_layers.setModel(self.model)
         self.neuronet = None
-        
+        self.path_to_model = None
+        self.ui.diagramm_path.setEnabled(False)
+
+    def file_choice(self):
+        if self.ui.file_check.isChecked():
+            self.ui.diagramm_path.setEnabled(True)
+        else:
+            self.ui.diagramm_path.setEnabled(False)
+
+    def path_choice(self):
+        # читаем путь к файлу модели
+        path = QtWidgets.QFileDialog.getSaveFileName(self,
+                                                     filter="Keras model file (*.h5)")
+        if len(path[0]) > 0:
+            print(path[0])
+            self.path_to_model = path[0]
+
     def show_layers(self, collect=False):
         #если окно вызывается из кнопки "изменить слой"
         if collect:
-            layer = self.collect_layer()
-            self.l_win = layers_class.Layers(current_layer=layer)
+            ind, layer = self.collect_layer()
+            #когда нажмали кнопку "изменить", а слой не выбрали
+            if layer is not None:
+                self.l_win = layers_class.Layers(current_layer=layer, index_change=ind)
+            else:
+                return
         else:
             self.l_win = layers_class.Layers()
+        print("check")
         self.l_win.setWindowModality(QtCore.Qt.ApplicationModal)
         self.l_win.ui.addButton.clicked.connect(self.get_layers)
         self.l_win.show()
         
     def get_layers(self):
-        status, layer = self.l_win.send_layer()
+        status, layer, index = self.l_win.send_layer()
         if layer == -1:
             return
         self.l_win.close()
         #если пользователь собрал какой-то слой
         if status:
+            #если до этого изменяли слой, то удаляем предыдущую версию
+            if index is not None:
+                self.model.removeRow(index)
             #создаем объект списка
             item = QtGui.QStandardItem(layer)
             font = QtGui.QFont()
             font.setFamily("Times New Roman")
-            font.setPointSize(16)
+            font.setPointSize(14)
             item.setFont(font)
             #добавляем объект в модель списка
+            if index is not None:
+                self.model.insertRow(index, item)
             self.model.appendRow(item)
             
     def collect_layer(self):
@@ -63,10 +95,15 @@ class ConstructWindow(QMainWindow):
         if len(index) > 1:
             QtWidgets.QMessageBox.information(self, "Ошибка", 
                                             "Пожалуйста, выбирете только один слой для редактирования")
-            return
+            return None, None
+        elif len(index) == 0:
+            QtWidgets.QMessageBox.information(self, "Ошибка",
+                                              "Не выбран слой для редактирования")
+            return None, None
         #если выбран один объект списка, выбираем его по индексу и возвращаем его текст
-        self.currentItem = self.ui.list_layers.itemFromIndex(index[0])
-        return self.currentItem.text()
+        self.currentItem = self.model.itemFromIndex(index[0])
+        #self.currentItem = self.ui.list_layers.itemFromIndex(index[0])
+        return index[0].row(), self.currentItem.text()
         
     def delete_layers(self, layers):
         #если ничего не выбрано для удаления
@@ -82,7 +119,7 @@ class ConstructWindow(QMainWindow):
             return
         for layer in layers:
             #построчно удаляем слои
-            self.list_layers.removeRows(layer, 1)
+            self.model.removeRow(layer.row())
             
     def construct_model(self):
         layers_count = self.ui.list_layers.rowCount()
@@ -142,15 +179,15 @@ class ConstructWindow(QMainWindow):
                 else:
                     layer = layers.Activation(activation=activation)
                     
-            elif layer_name == "AveragePool2D":              
+            elif layer_name == "AveragePool2D":
                 pool_size = np.asarray([unit for unit in layer_settings if unit[0] == 'pool_size'])
-                pool_size = self.make_tuple(pool_size[0][1]) if len(pool_size[0]) != 0 else (2,2)
+                pool_size = self.make_tuple(pool_size[0][1]) if len(pool_size) != 0 else (2,2)
                 strides = np.asarray([unit for unit in layer_settings if unit[0] == 'strides'])
-                strides = self.make_tuple(strides[0][1]) if len(strides[0]) != 0 else None
+                strides = self.make_tuple(strides[0][1]) if len(strides) != 0 else None
                 padding = np.asarray([unit for unit in layer_settings if unit[0] == 'padding'])
-                padding = padding[0][1] if len(padding[0]) != 0 else "valid"
+                padding = padding[0][1] if len(padding) != 0 else "valid"
                 data_format = np.asarray([unit for unit in layer_settings if unit[0] == 'data_format']) 
-                data_format = data_format[0][1] if len(data_format[0]) != 0 else None
+                data_format = data_format[0][1] if len(data_format) != 0 else None
                 
                 if len([sett for sett in layer_settings if sett[0] == 'input_shape'][0]) != 0:
                     inputSh = np.asarray([sett for sett in layer_settings if sett[0] == 'input_shape'])[0][1]
@@ -384,6 +421,22 @@ class ConstructWindow(QMainWindow):
         
     def send_model(self):
         if self.neuronet is not None:
+            #если выбрана опция "сохранить сеть"
+            if self.ui.file_check.isChecked():
+                if self.path_to_model is None:
+                    er_win = QtWidgets.QErrorMessage(self)
+                    er_win.showMessage("Не выбран путь к сохраняемой модели")
+                else:
+                    self.neuronet.save(self.path_to_model)
+            #если выбрана опция "показать диаграмму"
+            if self.ui.diagram_check.isChecked():
+                from keras.utils.vis_utils import plot_model
+                from cv2 import imread, imshow
+                plot_model('model.png', show_shapes=True,
+                           show_dtype=True)
+                img = imread('model.png')
+                imshow("Neuronet diagramm", img)
+                os.remove('model.png')
             return True, self.neuronet
         else:
             return False, None
@@ -391,7 +444,7 @@ class ConstructWindow(QMainWindow):
     def make_tuple(self, str_tuple): #'(2,2)'
         if len(str_tuple == 1):
             return int(str_tuple)
-        tup = str_tuple[1:-1].split(',')
+        tup = str_tuple.split(',')
         return tuple([x for x in tup])
             
             
