@@ -53,6 +53,21 @@ class Settings(QMainWindow):
             self.setWindowTitle("Настройки обратных вызовов")
             self.ui.list.setCurrentText(current_text)
             self.choice_callbacks(current_text)
+        elif win_type == 4:
+            self.ui.list.addItems(helper.LIST_READY_NETS)
+            self.ui.list.activated.connect(self.choice_nets)
+            self.ui.list_label.setText("Готовая сеть")
+            self.setWindowTitle("Настройки готовой сети")
+            self.ui.list.setCurrentText(current_text)
+            self.choice_callbacks(current_text)
+        elif win_type == 5:
+            self.ui.list.addItems(helper.LIST_CHECK_METRIC)
+            self.ui.list.activated.connect(self.choice_check_metric)
+            self.ui.list_label.setText("Метрика оценки")
+            self.setWindowTitle("Настройки метрики оценки")
+            self.ui.list.setCurrentText(current_text)
+            self.choice_callbacks(current_text)    
+        
         
     def choice_opts(self, opt=None):
         self.ui.par1_label.setText("Learning_rate")
@@ -223,7 +238,8 @@ class Settings(QMainWindow):
             self.ui.list.currentText() == "Hinge" or loss == "Hinge") or (
             self.ui.list.currentText() == "SquaredHinge" or loss == "SquaredHinge") or (
             self.ui.list.currentText() == "CategoricalHinge" or loss == "CategoricalHinge") or (
-            self.ui.list.currentText() == "LogCosh" or loss == "LogCosh"):
+            self.ui.list.currentText() == "LogCosh" or loss == "LogCosh") or (
+            self.ui.list.currentText() == "KLDivergence" or loss == "KLDivergence"):
             self.logic.hide_elements(self.ui, 1)
             self.resize(300, 230)
             self.ui.buttons.move(110, 180)
@@ -581,6 +597,78 @@ class Settings(QMainWindow):
             self.ui.par1_label.setVisible(False)
             self.resize(300, 230)
             self.ui.buttons.move(110, 180)
+            
+    def choice_nets(self, net=None):
+        self.ui.par1_label.setText("Weights")
+        self.ui.par1_label.setToolTip("Выбор используемых весов модели")
+        self.ui.par2_label.setText("Include_top")
+        self.ui.par2_label.setToolTip("Включать или нет полносвязный классификатор")
+        self.ui.par3_label.setText("Input_tensor")
+        self.ui.par3_label.setToolTip("Входной тензор модели")
+        self.ui.par4_label.setText("Input_shape")
+        self.ui.par4_label.setToolTip("Форма входных данных")
+        self.ui.par5_label.setText("Pooling")
+        tooltip = "Способ извлечения признаков, когда include_top установлен в false"
+        self.ui.par5_label.setToolTip(tooltip)
+        self.ui.par6_label.setText("Classes")
+        self.ui.par6_label.setToolTip("Число классов модели")
+        self.ui.par7_label.setText("Activation")
+        self.ui.par7_label.setToolTip("Функция активации последнего слоя классификатора")
+        self.par2.setVisible(False)
+        if self.ui.list.currentText() == "Xception" or net == "Xception" or (
+           self.ui.list.currentText() == "InceptionResNetV2" or net == "InceptionResNetV2") or (
+           self.ui.list.currentText() == "InceptionV3" or net == "InceptionV3") or (
+           self.ui.list.currentText() == "ResNet50" or net == "ResNet50") or (
+           self.ui.list.currentText() == "ResNet101" or net == "ResNet101") or (
+           self.ui.list.currentText() == "ResNet152" or net == "ResNet152") or (
+           self.ui.list.currentText() == "ResNet50V2" or net == "ResNet50V2") or (
+           self.ui.list.currentText() == "VGG16" or net == "VGG16") or (
+           self.ui.list.currentText() == "VGG19" or net == "VGG19"):
+            self.logic.hide_elements(self.ui, 7, bool_num=1)
+            self.resize(300, 380)
+            self.ui.buttons.move(110, 340)
+            
+        elif self.ui.list.currentText() == "MobileNet" or net == "MobileNet":
+            self.ui.par8_label.setText("Alpha")
+            self.ui.par8_label.setToolTip("Параметр контроля ширины слоёв модели")
+            self.ui.par9_label.setText("Depth_multiplier")
+            self.ui.par9_label.setToolTip("Глубина свёртки по глубине")
+            self.ui.par10_label.setText("Dropout")
+            self.ui.par10_label.setToolTip("Степень применения размыкания")
+            self.logic.hide_elements(self.ui, 9, bool_num=1)
+            self.resize(300, 460)
+            self.ui.buttons.move(110, 420)
+            
+        elif self.ui.list.currentText() == "MobileNetV2" or net == "MobileNetV2":
+            self.ui.par8_label.setText("Alpha")
+            self.ui.par8_label.setToolTip("Параметр контроля ширины слоёв модели")
+            self.logic.hide_elements(self.ui, 8, bool_num=1)
+            self.resize(300, 420)
+            self.ui.buttons.move(110, 380)
+            
+        elif self.ui.list.currentText() == "DenseNet121" or net == "DenseNet121" or (
+           self.ui.list.currentText() == "DenseNet169" or net == "DenseNet169") or (
+           self.ui.list.currentText() == "DenseNet201" or net == "DenseNet201"):
+            self.logic.hide_elements(self.ui, 5, bool_num=1)
+            self.resize(300, 300)
+            self.ui.buttons.move(110, 260)
+            
+    def choice_check_metric(self, check_metric=None): #СКОРРЕКТИРОВАТЬ ПОДСКАЗКИ!!!!!!!
+        self.ui.par1_label.setText("Sample_weight")
+        self.ui.par1_label.setToolTip("Выбор используемых весов модели")
+        if self.ui.list.currentText() == "F1" or check_metric == "F1" or (
+           self.ui.list.currentText() == "Precision" or check_metric == "Precision") or (
+           self.ui.list.currentText() == "Recall" or check_metric == "Recall") or (
+           self.ui.list.currentText() == "Jaccard" or check_metric == "Jaccard"):
+            self.ui.par2_label.setText("Labels")
+            self.ui.par2_label.setToolTip("Включать или нет полносвязный классификатор")
+            self.ui.par3_label.setText("Pos_label")
+            self.ui.par3_label.setToolTip("Входной тензор модели")
+            self.ui.par4_label.setText("Average")
+            self.ui.par4_label.setToolTip("Форма входных данных")
+            self.ui.par5_label.setText("Zero_division")
+            tooltip = "Способ извлечения признаков, когда include_top установлен в false"
+            self.ui.par5_label.setToolTip(tooltip)
             
     def between_wins(self):
         #набор считанных значений параметров

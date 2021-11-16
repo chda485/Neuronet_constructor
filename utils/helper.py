@@ -2,7 +2,7 @@
 #from keras import metrics
 import os, cv2, shutil
 import matplotlib.pyplot as plt
-from sklearn.metrics import classification_report
+#from sklearn.metrics import classification_report
 import numpy as np
 
 """
@@ -55,7 +55,7 @@ LIST_METRICS = [
     "CosineSimilarity", "RootMSE",
     "LogCoshError", "AUC", "Precision",
     "Recall", "TruePositives", "TrueNegatives",
-    "FalsePositive", "FalseNegative",
+    "FalsePositives", "FalseNegatives",
     "PrecisionAtRecall", "SensitivityAtSpecificity",
     "SpecificityAtSensitivity", "MeanIoU",
     "Hinge", "SquaredHinge", "CategoricalHinge"
@@ -72,6 +72,22 @@ LIST_CALLBACKS = ["ModelCheckpoint", "TensorBoard", "EarlyStopping",
 LIST_LAYERS = ["Activation", "AveragePool2D", "Conv2D",
                "Conv2DTranspose", "Dense", "GlobalAveragePool2D",
                "GlobalMaxPool2D", "MaxPooling2D", "SeparableConv2D"]
+
+LIST_READY_NETS = [
+    "Xception", "VGG16", "VGG19",
+    "ResNet50", "ResNet101", "ResNet152",
+    "ResNet50V2", "ResNet101V2", "ResNet152V2",
+    "InceptionV3", "InceptionResNetV2",
+    "MobileNet", "MobileNetV2", "DenseNet121",
+    "DenseNet169", "DenseNet201"
+]
+
+LIST_CHECK_METRIC = [
+    "Accuracy", "Balanced_accuracy", 
+    "Top_K_accuracy", "Average_precision", 
+    "Neg_brief", "F1", "Neg_log", "ROC_AUC",
+    "Precision", "Recall", "Jaccard"
+]
 
 def check_all_choised(dataset_path, epochs):
     if len(dataset_path) == 0:

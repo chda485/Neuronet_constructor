@@ -10,13 +10,13 @@ import numpy as np
 #from keras.models import load_model
 
 class TrainWindow(QMainWindow):
-    def __init__(self, stdout=None, parent=None):
+    def __init__(self, old_stdout=None, parent=None):
         QMainWindow.__init__(self, parent)
         self.ui = train_window.Ui_MainWindow()
         self.ui.setupUi(self)
         #установка вывода в консоль если делали перенаправление, для корректной работы отладочных print
-        self.stdout = stdout
-        sys.stdout = stdout
+        self.old_stdout = old_stdout
+        #sys.stdout = old_stdout
 
         self.setWindowTitle("Обучение нейросети")
         self.ui.close_button.clicked.connect(self.close)
@@ -32,7 +32,7 @@ class TrainWindow(QMainWindow):
         self.dataset_path = "" #путь к датасету
         self.path_model = "" #путь к файлу модели, которая открывается
         self.model_path = "" #путь к сохраняемому файлу модели
-        self.diagramm_file = "" #путь к сохраняемому файлу диаграммы сети
+        self.diagramm_file = "" #путь к сохраняемому файлу диаграммы сети !!!!!!
         self.plots_file = "" #путь к сохраняемому файлу графиков обучения
         self.path_weights = "" #путь к сохраняемому файлу весов модели
         self.inputShape = None 
@@ -140,7 +140,7 @@ class TrainWindow(QMainWindow):
         self.construct_window.show()
         
     def get_neuronet(self):
-        status, net = self.construct_window.send_model
+        (status, net) = self.construct_window.send_model
         if status:
             self.neuronet = net
     
@@ -199,8 +199,7 @@ class TrainWindow(QMainWindow):
             self.ui.console_train.append("The path to dataset:\n" + self.dataset_path)
 
     def create_inputShape(self):
-        print(self.callback)
-        text, status = QtWidgets.QInputDialog.getText(self, "Ввод формы данных",
+        (text, status) = QtWidgets.QInputDialog.getText(self, "Ввод формы данных",
                                                       "Введите форму данных в виде строки через запятую")
         #если форма была введена
         if status:
@@ -239,7 +238,7 @@ class TrainWindow(QMainWindow):
         self.settings.show()
     
     def get_settings(self, win_type):
-        status, obj = self.settings.between_wins()
+        (status, obj) = self.settings.between_wins()
         self.settings.close()
         #если были выбраны какие-то настройки
         if status:
@@ -249,6 +248,7 @@ class TrainWindow(QMainWindow):
                 self.loss = obj
             elif win_type == 2:
                 self.metric = obj
+                print(self.metric)
             else: self.callback = obj
 
     """алгоритм работы функции обучения:
@@ -288,7 +288,7 @@ class TrainWindow(QMainWindow):
                 shape = "".join([str(x) + ',' for x in np.asarray(shape)])
                 self.inputShape = shape[:-1]
                 self.ui.console_train.append("InputShape is: {}".format(self.inputShape))
-            #если не смогли скнструировать
+            #если не смогли сконструировать
             else:
                 self.ui.console_train.append("Некорректный датасет")
                 
@@ -312,14 +312,14 @@ class TrainWindow(QMainWindow):
             model = builder.build_model(self.ui.list_of_nets.currentText(),
                                             self.inputShape,
                                             self.dataset_path)
-
+        
         #проверяем, выбрана ли опция "отобразить диаграмму сети"
         diagramm = self.ui.show_check.isChecked()
         #если выбрана либо установлен путь к файлу диаграммы
-        if diagramm or self.diagramm_file is not None:
+        if diagramm or len(self.diagramm_file) != 0:
             from keras.utils.vis_utils import plot_model
             #собираем путь к сохраняемому файлу
-            if self.diagramm_file is not None:
+            if len(self.diagramm_file) != 0:
                 path = self.diagramm_file + "\{}.png".format(self.ui.list_of_nets.currentText())
             #пишем название файла, если только отображаем диаграмму
             else:
@@ -332,7 +332,8 @@ class TrainWindow(QMainWindow):
                 cv2.imshow("Net diagramm", img)
             if not self.diagramm_file:
                 os.remove(path)
-        
+
+        #делаем отмену вывода в консоль хода обучения, если на выбрали опцию подробного отчета
         if not self.ui.otchet_check.isChecked():
             devnull = open(os.devnull, "w")
             old = sys.stdout
@@ -341,7 +342,7 @@ class TrainWindow(QMainWindow):
         results, model = builder.model_train(model, self.opt, self.loss, self.metric,
                                          self.ui.epochs.text(), self.dataset_path,
                                          detail_result=self.ui.result_check.isChecked())
-        
+
         if not self.ui.otchet_check.isChecked():
             sys.stdout = old
 
@@ -358,15 +359,16 @@ class TrainWindow(QMainWindow):
             
         if self.ui.weights_check.isChecked() and len(self.path_weights) != 0:
             model.save_weights(self.path_weights)
-            
-        
+
         if os.path.exists("incl_fun.py"):
             os.remove("incl_fun.py")
             
-        print(results[0])
+        #print(results[0])
+
 
     def write(self, text):
-        self.ui.console_train.append(str(text))
+        text = str(text).replace('\n', '').replace('0', '')
+        self.ui.console_train.append(text)
         
     def flush(self):
-        sys.stdout.flush()
+        sys.stdout = self.old_stdout

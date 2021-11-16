@@ -18,7 +18,8 @@ class MainWindow(QMainWindow):
         self.stdout = sys.stdout
 
     def show_train(self):
-        self.train_window = train_class.TrainWindow(stdout=self.stdout)
+        self.train_window = train_class.TrainWindow(old_stdout=self.stdout)
+        sys.stdout = self.train_window
         self.train_window.setWindowModality(QtCore.Qt.ApplicationModal)
         self.train_window.show()
 

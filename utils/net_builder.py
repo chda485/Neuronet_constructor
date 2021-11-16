@@ -26,7 +26,9 @@ class NetBuilder():
         Y_tuple = (Y_train, Y_val, Y_test)
         for element in zip(dir_tuple, X_tuple, Y_tuple):
             self.classes = os.listdir(element[0])
+            #print(element)
             for classes in os.listdir(element[0]):
+                #print(classes)
                 for files in os.listdir(os.path.join(element[0], classes)):
                     file = cv2.imread(os.path.join(element[0], classes, files))
                     if file.shape != needed_shape:
@@ -70,13 +72,15 @@ class NetBuilder():
             optimizer = opt
         if type(metric) == str:
             metric = metric.lower()
+        else:
+            metric = metric
         if type(loss_fun) == str:
             loss = helper.LIST_LOSSES[loss_fun]
         else:
             loss = loss_fun
-        print(loss)
-        print(optimizer)
-        print(metric)
+        #print(loss)
+        #print(optimizer)
+        #print(metric)
         model.compile(loss=loss, optimizer=optimizer, metrics=[metric])
         
         #СДЕЛАТЬ БЛОКИРОВКУ ВЫВОДА В КОНСОЛЬ, ЕСЛИ НЕ ВЫБРАН ПОДРОБНЫЙ ОТЧЕТ О ХОДЕ ОБУЧЕНИЯ

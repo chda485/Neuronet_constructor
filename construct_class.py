@@ -8,7 +8,7 @@ import sys
 import os
 sys.path.append("utils")
 from utils import helper 
-#from keras import models, layers
+from keras import models, layers
 import numpy as np
 
 class ConstructWindow(QMainWindow):
@@ -62,7 +62,6 @@ class ConstructWindow(QMainWindow):
                 return
         else:
             self.l_win = layers_class.Layers()
-        print("check")
         self.l_win.setWindowModality(QtCore.Qt.ApplicationModal)
         self.l_win.ui.addButton.clicked.connect(self.get_layers)
         self.l_win.show()
