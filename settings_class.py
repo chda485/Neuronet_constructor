@@ -15,13 +15,9 @@ class Settings(QMainWindow):
         self.logic = SettingsLogic(win_type, parent=self)
         self.win_type = win_type
         
-        """переменные-пути для функций, используемых как параметры"""
+        """переменные для функций, используемых как параметры"""
         self.path = None
-        self.path2 = None
-        self.path3 = None
-        self.path4 = None
-        self.path5 = None
-        self.path6 = None
+        self.truth_labels = None
         
         #0 - настройки оптимизатора, 1 - настройки функции потерь
         #2 - настройки метрики, 3 - настройки обратных вызовов
@@ -654,8 +650,10 @@ class Settings(QMainWindow):
             self.ui.buttons.move(110, 260)
             
     def choice_check_metric(self, check_metric=None): #СКОРРЕКТИРОВАТЬ ПОДСКАЗКИ!!!!!!!
-        self.ui.par1_label.setText("Sample_weight")
-        self.ui.par1_label.setToolTip("Выбор используемых весов модели")
+        self.ui.par1_label.setText("True labels")
+        self.ui.par1_label.setToolTip("Список истинных меток для предсказываемых экземпляров в CSV-файле")
+        self.ui.par2_label.setText("Sample weights")
+        self.ui.par2_label.setToolTip("Список истинных меток для предсказываемых экземпляров в CSV-файле")
         if self.ui.list.currentText() == "F1" or check_metric == "F1" or (
            self.ui.list.currentText() == "Precision" or check_metric == "Precision") or (
            self.ui.list.currentText() == "Recall" or check_metric == "Recall") or (
@@ -669,7 +667,79 @@ class Settings(QMainWindow):
             self.ui.par5_label.setText("Zero_division")
             tooltip = "Способ извлечения признаков, когда include_top установлен в false"
             self.ui.par5_label.setToolTip(tooltip)
+            self.logic.hide_elements(self.ui, 5)
+            self.resize(300, 300)
+            self.ui.buttons.move(110, 260)
             
+        elif self.ui.list.currentText() == "Accuracy" or check_metric == "Accuracy":
+            self.ui.par2_label.setText("Normalize")
+            self.ui.par2_label.setToolTip("Включать или нет полносвязный классификатор")
+            self.ui.par.setVisible(False)
+            self.logic.hide_elements(self.ui, 2, bool_num=1)
+            self.resize(300, 230)
+            self.ui.buttons.move(110, 180)
+            
+        elif self.ui.list.currentText() == "Balanced_accuracy" or check_metric == "Balanced_accuracy":
+            self.ui.par2_label.setText("Adjusted")
+            self.ui.par2_label.setToolTip("Включать или нет полносвязный классификатор")
+            self.ui.par.setVisible(False)
+            self.logic.hide_elements(self.ui, 2, bool_num=1)
+            self.resize(300, 230)
+            self.ui.buttons.move(110, 180)
+            
+        elif self.ui.list.currentText() == "Top_K_accuracy" or check_metric == "Top_K_accuracy":
+            self.ui.par2_label.setText("Normalize")
+            self.ui.par2_label.setToolTip("Включать или нет полносвязный классификатор")
+            self.ui.par3_label.setText("K")
+            self.ui.par3_label.setToolTip("Входной тензор модели")
+            self.ui.par4_label.setText("Labels")
+            self.ui.par4_label.setToolTip("Форма входных данных")
+            self.ui.par.setVisible(False)
+            self.logic.hide_elements(self.ui, 4, bool_num=1)
+            self.resize(300, 260)
+            self.ui.buttons.move(110, 220)
+            
+        elif self.ui.list.currentText() == "Average_precision" or check_metric == "Average_precision":
+            self.ui.par2_label.setText("Pos_label")
+            self.ui.par2_label.setToolTip("Входной тензор модели")
+            self.ui.par3_label.setText("Average")
+            self.ui.par3_label.setToolTip("Форма входных данных")
+            self.logic.hide_elements(self.ui, 3)
+            self.resize(300, 230)
+            self.ui.buttons.move(110, 180)
+            
+        elif self.ui.list.currentText() == "Neg_brief" or check_metric == "Neg_brief":
+            self.ui.par2_label.setText("Pos_label")
+            self.ui.par2_label.setToolTip("Входной тензор модели")
+            self.logic.hide_elements(self.ui, 2)
+            self.resize(300, 230)
+            self.ui.buttons.move(110, 180)
+
+        elif self.ui.list.currentText() == "Neg_log" or check_metric == "Neg_log":
+            self.ui.par2_label.setText("Normalize")
+            self.ui.par2_label.setToolTip("Включать или нет полносвязный классификатор")
+            self.ui.par3_label.setText("Eps")
+            self.ui.par3_label.setToolTip("Входной тензор модели")
+            self.ui.par4_label.setText("Labels")
+            self.ui.par4_label.setToolTip("Форма входных данных")
+            self.ui.par.setVisible(False)
+            self.logic.hide_elements(self.ui, 4, bool_num=1)
+            self.resize(300, 260)
+            self.ui.buttons.move(110, 220)
+
+        elif self.ui.list.currentText() == "ROC_AUC" or check_metric == "ROC_AUC":
+            self.ui.par2_label.setText("Average")
+            self.ui.par2_label.setToolTip("Форма входных данных")
+            self.ui.par3_label.setText("Max_fpr")
+            self.ui.par3_label.setToolTip("Входной тензор модели")
+            self.ui.par4_label.setText("Multiclass")
+            self.ui.par4_label.setToolTip("Входной тензор модели")
+            self.ui.par5_label.setText("Labels")
+            self.ui.par5_label.setToolTip("Входной тензор модели")
+            self.logic.hide_elements(self.ui, 5)
+            self.resize(300, 300)
+            self.ui.buttons.move(110, 260)
+        
     def between_wins(self):
         #набор считанных значений параметров
         settings = (self.ui.par1.text(), self.ui.par2.text(),
@@ -682,10 +752,10 @@ class Settings(QMainWindow):
                  self.ui.bool_check3.isChecked())
 
         #набор всех путей к функциям параметрам
-        fun = self.path
+        buttons_par = (self.path, self.truth_labels)
 
         #проверяем, было ли что-то выбрано среди настроек
-        check = helper.check_settings(settings, bools, fun)
+        check = helper.check_settings(settings, bools, buttons_par)
         if not check:
             return False, None
 

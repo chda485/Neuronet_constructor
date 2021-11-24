@@ -3,12 +3,14 @@ from keras import optimizers, metrics, losses, callbacks
 import keras.applications as ready_nets
 import helper, os
 import numpy as np
+import csv
 
 
 class SettingsLogic():
     def __init__(self, win_type, parent):
         self.win_type = win_type
         self.fun_path = None
+        self.truth_labels = []
         self.parent = parent
 
     def hide_elements(self, ui, number=9, bool_num=0, fun_number=False):
@@ -617,18 +619,140 @@ class SettingsLogic():
             return callback
         
     def pass_net_settings(self, ui):
+        weights = ui.par1.text() if len(ui.par1.text()) != 0 else "imagenet"
+        input_tensor = ui.par3.text() if len(ui.par3.text()) != 0 else None
+        input_shape = ui.par4.text() if len(ui.par4.text()) != 0 else None
+        pooling = ui.par5.text() if len(ui.par5.text()) != 0 else None
+        classes = int(ui.par6.text()) if len(ui.par6.text()) != 0 else 1000
         if ui.list.currentText() == "Xception" or ui.list.currentText() == "InceptionResNetV2" or (
            ui.list.currentText() == "InceptionV3") or ui.list.currentText() == "ResNet50" or (
            ui.list.currentText() == "ResNet101") or ui.list.currentText() == "ResNet152" or (
            ui.list.currentText() == "ResNet50V2") or ui.list.currentText() == "VGG16" or (
-           ui.list.currentText() == "VGG19"):
-            weights = ui.par1.text() if len(ui.par1.text()) != 0 else "imagenet"
-            input_tensor = ui.par3.text() if len(ui.par3.text()) != 0 else None
-            input_shape = ui.par4.text() if len(ui.par4.text()) != 0 else None
-            pooling = ui.par5.text() if len(ui.par5.text()) != 0 else None
-            classes = int(ui.par6.text()) if len(ui.par6.text()) != 0 else 1000
+           ui.list.currentText() == "VGG19") or ui.list.currentText() == "ResNet101V2" or (
+           ui.list.currentText() == "ResNet152V2"):
             activation = ui.par7.text() if len(ui.par7.text()) != 0 else "softmax"
+            if ui.list.currentText() == "Xception":
+                net = ready_nets.Xception(include_top=ui.bool_check1.isChecked(),
+                                          weights=weights, input_tensor=input_tensor,
+                                          input_shape=input_shape, classes=classes,
+                                          pooling=pooling, classifier_activation=activation)
+                return net
             
+            elif ui.list.currentText() == "InceptionResNetV2":
+                net = ready_nets.InceptionResNetV2(include_top=ui.bool_check1.isChecked(),
+                                          weights=weights, input_tensor=input_tensor,
+                                          input_shape=input_shape, classes=classes,
+                                          pooling=pooling, classifier_activation=activation)
+                return net
+            
+            elif ui.list.currentText() == "ResNet50":
+                net = ready_nets.ResNet50(include_top=ui.bool_check1.isChecked(),
+                                          weights=weights, input_tensor=input_tensor,
+                                          input_shape=input_shape, classes=classes,
+                                          pooling=pooling, classifier_activation=activation)
+                return net
+            
+            elif ui.list.currentText() == "ResNet101":
+                net = ready_nets.ResNet101(include_top=ui.bool_check1.isChecked(),
+                                           weights=weights, input_tensor=input_tensor,
+                                           input_shape=input_shape, classes=classes,
+                                           pooling=pooling, classifier_activation=activation)
+                return net
+            
+            elif ui.list.currentText() == "InceptionV3":
+                net = ready_nets.InceptionV3(include_top=ui.bool_check1.isChecked(),
+                                             weights=weights, input_tensor=input_tensor,
+                                             input_shape=input_shape, classes=classes,
+                                             pooling=pooling, classifier_activation=activation)
+                return net
+            
+            elif ui.list.currentText() == "ResNet152":
+                net = ready_nets.ResNet152(include_top=ui.bool_check1.isChecked(),
+                                           weights=weights, input_tensor=input_tensor,
+                                           input_shape=input_shape, classes=classes,
+                                           pooling=pooling, classifier_activation=activation)
+                return net
+            
+            elif ui.list.currentText() == "ResNet50V2":
+                net = ready_nets.ResNet50V2(include_top=ui.bool_check1.isChecked(),
+                                            weights=weights, input_tensor=input_tensor,
+                                            input_shape=input_shape, classes=classes,
+                                            pooling=pooling, classifier_activation=activation)
+                return net
+            
+            elif ui.list.currentText() == "ResNet101V2":
+                net = ready_nets.ResNet101V2(include_top=ui.bool_check1.isChecked(),
+                                             weights=weights, input_tensor=input_tensor,
+                                             input_shape=input_shape, classes=classes,
+                                             pooling=pooling, classifier_activation=activation)
+                return net
+            
+            elif ui.list.currentText() == "ResNet152V2":
+                net = ready_nets.ResNet152V2(include_top=ui.bool_check1.isChecked(),
+                                             weights=weights, input_tensor=input_tensor,
+                                             input_shape=input_shape, classes=classes,
+                                             pooling=pooling, classifier_activation=activation)
+                return net
+            
+            elif ui.list.currentText() == "VGG16":
+                net = ready_nets.VGG16(include_top=ui.bool_check1.isChecked(),
+                                       weights=weights, input_tensor=input_tensor,
+                                       input_shape=input_shape, classes=classes,
+                                       pooling=pooling, classifier_activation=activation)
+                return net
+            
+            elif ui.list.currentText() == "VGG19":
+                net = ready_nets.VGG19(include_top=ui.bool_check1.isChecked(),
+                                       weights=weights, input_tensor=input_tensor,
+                                       input_shape=input_shape, classes=classes,
+                                       pooling=pooling, classifier_activation=activation)
+                return net
+        
+        elif ui.list.currentText() == "MobileNet":
+            activation = ui.par7.text() if len(ui.par7.text()) != 0 else "softmax"
+            alpha = float(ui.par8.text()) if len(ui.par8.text()) != 0 else 1.0
+            multi = int(ui.par9.text()) if len(ui.par9.text()) != 0 else 1
+            dropout = float(ui.par10.text()) if len(ui.par10.text()) != 0 else 0.001
+            net = ready_nets.MobileNet(include_top=ui.bool_check1.isChecked(),
+                                       weights=weights, input_tensor=input_tensor,
+                                       input_shape=input_shape, classes=classes,
+                                       pooling=pooling, classifier_activation=activation,
+                                       alpha=alpha, depth_multiplier=multi,
+                                       dropout=dropout)
+            return net
+        
+        elif ui.list.currentText() == "MobileNetV2":
+            activation = ui.par7.text() if len(ui.par7.text()) != 0 else "softmax"
+            alpha = float(ui.par8.text()) if len(ui.par8.text()) != 0 else 1.0
+            net = ready_nets.MobileNetv2(include_top=ui.bool_check1.isChecked(),
+                                         weights=weights, input_tensor=input_tensor,
+                                         input_shape=input_shape, classes=classes,
+                                         pooling=pooling, classifier_activation=activation,
+                                         alpha=alpha)
+            return net
+        
+        elif ui.list.currentText() == "DenseNet121" or ui.list.currentText() == "DenseNet169" or (
+           ui.list.currentText() == "DenseNet201"):
+            if ui.list.currentText() == "DenseNet121":
+                net = ready_nets.DenseNet121(include_top=ui.bool_check1.isChecked(),
+                                             weights=weights, input_tensor=input_tensor,
+                                             input_shape=input_shape, classes=classes,
+                                             pooling=pooling)
+                return net
+            
+            elif ui.list.currentText() == "DenseNet169":
+                net = ready_nets.DenseNet169(include_top=ui.bool_check1.isChecked(),
+                                             weights=weights, input_tensor=input_tensor,
+                                             input_shape=input_shape, classes=classes,
+                                             pooling=pooling)
+                return net
+            
+            elif ui.list.currentText() == "DenseNet201":
+                net = ready_nets.DenseNet201(include_top=ui.bool_check1.isChecked(),
+                                             weights=weights, input_tensor=input_tensor,
+                                             input_shape=input_shape, classes=classes,
+                                             pooling=pooling)
+                return net
 
     def choice_fun_file(self, obj):
     	#открываем окно поиска файла с функцией
@@ -643,3 +767,14 @@ class SettingsLogic():
         array = array_text.split(',')
         return np.asarray(array)
     
+    def read_true_label(self, obj):
+        #открываем окно поиска файла с метками
+        path = QtWidgets.QFileDialog.getOpenFileName(self.parent,
+                                                     filter="CSV files(*.csv)")
+        #если файл выбрали
+        if len(path[0]) != 0:
+            f = open(path[0], 'r')
+            csv_reader = csv.reader(f)
+            for label in csv_reader:
+                self.truth_label.append(label)
+            obj.truth_labels = np.asarray(self.truth_labels)

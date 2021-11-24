@@ -1,11 +1,11 @@
-#import nets
+import nets
 #from keras import metrics
 import os, cv2, shutil
 import matplotlib.pyplot as plt
-#from sklearn.metrics import classification_report
+from sklearn.metrics import classification_report
 import numpy as np
 
-"""
+
 LISTS_NEURONETS = {
     "LeNet": nets.LeNet, "AlexNet": nets.AlexNet,
     "MiniVGGNet": nets.MiniVGGNet, "ShallowNet": nets.ShallowNet,
@@ -18,20 +18,6 @@ LISTS_NEURONETS = {
     "Xception": nets.Xception, "GoggleNet": nets.GoogleNet,
     "DenseNet": nets.DenseNet
     }
-"""
-
-LISTS_NEURONETS = [
-    "LeNet", "AlexNet",
-    "MiniVGGNet", "ShallowNet",
-    "VGG16", "VGG19",
-    "MobileNet", "SqueezeNet",
-    "ResNet18", "ResNet34",
-    "ResNet50", "ResNet101",
-    "ResNet152", "InceptionV2",
-    "InceptionV3", "InceptionV4",
-    "Xception", "GoggleNet",
-    "DenseNet"
-    ]
 
 
 LIST_LOSSES = {
@@ -124,7 +110,7 @@ def check_input(shape):
             return False
     return True
 
-def check_settings(settings, bools=(None,None), fun=None):
+def check_settings(settings, bools=(None,None), buttons_par=None):
     answer = False
     #проверяем установку обычных параметров
     for set_ in settings:
@@ -140,10 +126,11 @@ def check_settings(settings, bools=(None,None), fun=None):
         else:
             answer = True
             return answer
-    #проверяем установку пути к функции
-    if fun:
-        answer = True
-        return answer
+    #проверяем установку параметров-кнопок
+    for par in buttons_par:
+        if par:
+            answer = True
+            return answer
     return answer
     
 def include_function(path, current):#
