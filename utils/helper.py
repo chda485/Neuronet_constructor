@@ -3,6 +3,7 @@ import nets
 import os, cv2, shutil
 import matplotlib.pyplot as plt
 from sklearn.metrics import classification_report
+from keras import applications as ready_net
 import numpy as np
 
 
@@ -59,12 +60,27 @@ LIST_LAYERS = ["Activation", "AveragePool2D", "Conv2D",
                "Conv2DTranspose", "Dense", "GlobalAveragePool2D",
                "GlobalMaxPool2D", "MaxPooling2D", "SeparableConv2D"]
 
+"""
+LIST_READY_NETS = {
+    "Xception": ready_net.xception.Xception(), "VGG16": ready_net.vgg16.VGG16(),
+    "VGG19": ready_net.vgg19.VGG19(), "ResNet50": ready_net.ResNet50(),
+    "ResNet101": ready_net.ResNet101(), "ResNet152": ready_net.ResNet152(),
+    "ResNet50V2": ready_net.ResNet50V2(), "ResNet101V2": ready_net.ResNet101V2(),
+    "ResNet152V2": ready_net.ResNet152V2(), "InceptionV3": ready_net.InceptionV3(),
+    "InceptionResNetV2": ready_net.InceptionResNetV2(), "MobileNet": ready_net.MobileNet(),
+    "MobileNetV2": ready_net.MobileNetV2(), "DenseNet121": ready_net.DenseNet121(),
+    "DenseNet169": ready_net.DenseNet169(), "DenseNet201": ready_net.DenseNet201()
+}
+"""
+
 LIST_READY_NETS = [
-    "Xception", "VGG16", "VGG19",
-    "ResNet50", "ResNet101", "ResNet152",
-    "ResNet50V2", "ResNet101V2", "ResNet152V2",
-    "InceptionV3", "InceptionResNetV2",
-    "MobileNet", "MobileNetV2", "DenseNet121",
+    "Xception", "VGG16",
+    "VGG19", "ResNet50",
+    "ResNet101", "ResNet152",
+    "ResNet50V2", "ResNet101V2",
+    "ResNet152V2", "InceptionV3",
+    "InceptionResNetV2", "MobileNet",
+    "MobileNetV2", "DenseNet121",
     "DenseNet169", "DenseNet201"
 ]
 
@@ -188,3 +204,34 @@ def print_predictions(model, target_names, batch, testX, testY):
     print(classification_report(testY.argmax(axis=1),
                                 predictions.argmax(axis=1),
                                 target_names=target_names))
+
+def construct_tuple(str_):
+    s = np.asarray(str_.split(','))
+    if len(s) == 2:
+        return (int(s[0]),)
+    else:
+        pass
+    
+def construct_array(str_):
+    arr = str_.split(',')[0]
+    if arr.isdigit():
+        return np.asarray([int(i) for i in str_.split(',')])
+    else:
+        return np.asarray([i for i in str_.split(',')])
+    
+def rank5_accuracy(preds, labels):
+    rank1 = 0
+    rank5 = 0
+
+    for (p, gt) in zip(preds, labels): 
+        p = np.argsort(p)[::-1]
+        if gt in p[:5]:
+            rank5 += 1
+
+        if gt == p[0]:
+            rank1 += 1
+
+    rank1 /= float(len(labels))
+    rank5 /= float(len(labels))
+
+    return (rank1, rank5)

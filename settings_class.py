@@ -55,15 +55,14 @@ class Settings(QMainWindow):
             self.ui.list_label.setText("Готовая сеть")
             self.setWindowTitle("Настройки готовой сети")
             self.ui.list.setCurrentText(current_text)
-            self.choice_callbacks(current_text)
+            self.choice_nets(current_text)
         elif win_type == 5:
             self.ui.list.addItems(helper.LIST_CHECK_METRIC)
             self.ui.list.activated.connect(self.choice_check_metric)
             self.ui.list_label.setText("Метрика оценки")
             self.setWindowTitle("Настройки метрики оценки")
             self.ui.list.setCurrentText(current_text)
-            self.choice_callbacks(current_text)    
-        
+            self.choice_check_metric(current_text)            
         
     def choice_opts(self, opt=None):
         self.ui.par1_label.setText("Learning_rate")
@@ -610,7 +609,6 @@ class Settings(QMainWindow):
         self.ui.par6_label.setToolTip("Число классов модели")
         self.ui.par7_label.setText("Activation")
         self.ui.par7_label.setToolTip("Функция активации последнего слоя классификатора")
-        self.par2.setVisible(False)
         if self.ui.list.currentText() == "Xception" or net == "Xception" or (
            self.ui.list.currentText() == "InceptionResNetV2" or net == "InceptionResNetV2") or (
            self.ui.list.currentText() == "InceptionV3" or net == "InceptionV3") or (
@@ -631,9 +629,9 @@ class Settings(QMainWindow):
             self.ui.par9_label.setToolTip("Глубина свёртки по глубине")
             self.ui.par10_label.setText("Dropout")
             self.ui.par10_label.setToolTip("Степень применения размыкания")
-            self.logic.hide_elements(self.ui, 9, bool_num=1)
-            self.resize(300, 460)
-            self.ui.buttons.move(110, 420)
+            self.logic.hide_elements(self.ui, 10, bool_num=1)
+            self.resize(300, 500)
+            self.ui.buttons.move(110, 460)
             
         elif self.ui.list.currentText() == "MobileNetV2" or net == "MobileNetV2":
             self.ui.par8_label.setText("Alpha")
@@ -648,24 +646,26 @@ class Settings(QMainWindow):
             self.logic.hide_elements(self.ui, 5, bool_num=1)
             self.resize(300, 300)
             self.ui.buttons.move(110, 260)
+        self.ui.par2.setVisible(False)
             
-    def choice_check_metric(self, check_metric=None): #СКОРРЕКТИРОВАТЬ ПОДСКАЗКИ!!!!!!!
-        self.ui.par1_label.setText("True labels")
-        self.ui.par1_label.setToolTip("Список истинных меток для предсказываемых экземпляров в CSV-файле")
-        self.ui.par2_label.setText("Sample weights")
-        self.ui.par2_label.setToolTip("Список истинных меток для предсказываемых экземпляров в CSV-файле")
+    def choice_check_metric(self, check_metric=None): 
+        self.ui.par1_label.setText("Sample weight")
+        self.ui.par1_label.setToolTip("Веса примеров в форме массива")
         if self.ui.list.currentText() == "F1" or check_metric == "F1" or (
            self.ui.list.currentText() == "Precision" or check_metric == "Precision") or (
            self.ui.list.currentText() == "Recall" or check_metric == "Recall") or (
            self.ui.list.currentText() == "Jaccard" or check_metric == "Jaccard"):
             self.ui.par2_label.setText("Labels")
-            self.ui.par2_label.setToolTip("Включать или нет полносвязный классификатор")
+            self.ui.par2_label.setToolTip("Набор меток, если average != 'binary', или их порядок при average None")
             self.ui.par3_label.setText("Pos_label")
-            self.ui.par3_label.setToolTip("Входной тензор модели")
-            self.ui.par4_label.setText("Average")
-            self.ui.par4_label.setToolTip("Форма входных данных")
+            self.ui.par4_label.setToolTip("Отчетный класс, если average 'binary', иначе параметр игнорируется")
+            self.ui.par5_label.setText("Average")
+            tooltip = "Если None, то оценки считаются для каждого класса\n"
+            tooltip += "Иначе параметр определяет тип усреднения данных"
+            self.ui.par4_label.setToolTip(tooltip)
             self.ui.par5_label.setText("Zero_division")
-            tooltip = "Способ извлечения признаков, когда include_top установлен в false"
+            tooltip = "Набор значений, возвращаемых когда все предсказания и метки негативные\n"
+            tooltip += "(Есть деление на 0)"
             self.ui.par5_label.setToolTip(tooltip)
             self.logic.hide_elements(self.ui, 5)
             self.resize(300, 300)
@@ -673,69 +673,82 @@ class Settings(QMainWindow):
             
         elif self.ui.list.currentText() == "Accuracy" or check_metric == "Accuracy":
             self.ui.par2_label.setText("Normalize")
-            self.ui.par2_label.setToolTip("Включать или нет полносвязный классификатор")
-            self.ui.par.setVisible(False)
-            self.logic.hide_elements(self.ui, 2, bool_num=1)
+            tooltip = "Возвращать ли функцию от числа или число правильно классифицированных меток"
+            self.ui.par2_label.setToolTip(tooltip)
+            self.logic.hide_elements(self.ui, 2)
+            self.ui.par2.setVisible(False)
+            self.ui.bool_check1.setVisible(True)
             self.resize(300, 230)
             self.ui.buttons.move(110, 180)
             
         elif self.ui.list.currentText() == "Balanced_accuracy" or check_metric == "Balanced_accuracy":
             self.ui.par2_label.setText("Adjusted")
-            self.ui.par2_label.setToolTip("Включать или нет полносвязный классификатор")
-            self.ui.par.setVisible(False)
-            self.logic.hide_elements(self.ui, 2, bool_num=1)
+            tooltip = "Настравивать или нет результат на рандомное представление как 0 и совершенное как 1"
+            self.ui.par2_label.setToolTip(tooltip)
+            self.logic.hide_elements(self.ui, 2)
+            self.ui.par2.setVisible(False)
+            self.ui.bool_check1.setVisible(True)
             self.resize(300, 230)
             self.ui.buttons.move(110, 180)
             
         elif self.ui.list.currentText() == "Top_K_accuracy" or check_metric == "Top_K_accuracy":
             self.ui.par2_label.setText("Normalize")
-            self.ui.par2_label.setToolTip("Включать или нет полносвязный классификатор")
+            tooltip = "Возвращать ли функцию от числа или число правильно классифицированных меток"
+            self.ui.par2_label.setToolTip(tooltip)
             self.ui.par3_label.setText("K")
-            self.ui.par3_label.setToolTip("Входной тензор модели")
+            self.ui.par3_label.setToolTip("Число исходов для нахождения корректной метки")
             self.ui.par4_label.setText("Labels")
-            self.ui.par4_label.setToolTip("Форма входных данных")
-            self.ui.par.setVisible(False)
-            self.logic.hide_elements(self.ui, 4, bool_num=1)
+            self.ui.par4_label.setToolTip("Список меток что определяют классы предсказаний")
+            self.logic.hide_elements(self.ui, 4)
+            self.ui.par2.setVisible(False)
+            self.ui.bool_check1.setVisible(True)
             self.resize(300, 260)
             self.ui.buttons.move(110, 220)
             
         elif self.ui.list.currentText() == "Average_precision" or check_metric == "Average_precision":
             self.ui.par2_label.setText("Pos_label")
-            self.ui.par2_label.setToolTip("Входной тензор модели")
+            self.ui.par2_label.setToolTip("Метка положительного класса для бинарной классификации")
             self.ui.par3_label.setText("Average")
-            self.ui.par3_label.setToolTip("Форма входных данных")
+            tooltip = "Если None, то оценки считаются для каждого класса\n"
+            tooltip += "Иначе параметр определяет тип усреднения данных"
+            self.ui.par3_label.setToolTip(tooltip)
             self.logic.hide_elements(self.ui, 3)
             self.resize(300, 230)
             self.ui.buttons.move(110, 180)
             
         elif self.ui.list.currentText() == "Neg_brief" or check_metric == "Neg_brief":
             self.ui.par2_label.setText("Pos_label")
-            self.ui.par2_label.setToolTip("Входной тензор модели")
+            self.ui.par2_label.setToolTip("Метка положительного класса для бинарной классификации")
             self.logic.hide_elements(self.ui, 2)
             self.resize(300, 230)
             self.ui.buttons.move(110, 180)
 
         elif self.ui.list.currentText() == "Neg_log" or check_metric == "Neg_log":
             self.ui.par2_label.setText("Normalize")
-            self.ui.par2_label.setToolTip("Включать или нет полносвязный классификатор")
+            self.ui.par2_label.setToolTip("Возвращать ли средние потери на экземпляр или сумму потерь")
             self.ui.par3_label.setText("Eps")
-            self.ui.par3_label.setToolTip("Входной тензор модели")
+            tooltip = "Потери определеённые для р=0 и р=1, так что вероятности стремятся к максимуму"
+            self.ui.par3_label.setToolTip(tooltip)
             self.ui.par4_label.setText("Labels")
-            self.ui.par4_label.setToolTip("Форма входных данных")
-            self.ui.par.setVisible(False)
-            self.logic.hide_elements(self.ui, 4, bool_num=1)
+            self.ui.par4_label.setToolTip("Список меток что определяют классы предсказаний")
+            self.logic.hide_elements(self.ui, 4)
+            self.ui.par2.setVisible(False)
+            self.ui.bool_check1.setVisible(True)
             self.resize(300, 260)
             self.ui.buttons.move(110, 220)
 
         elif self.ui.list.currentText() == "ROC_AUC" or check_metric == "ROC_AUC":
             self.ui.par2_label.setText("Average")
-            self.ui.par2_label.setToolTip("Форма входных данных")
+            tooltip = "Если None, то оценки считаются для каждого класса\n"
+            tooltip += "Иначе параметр определяет тип усреднения данных"
+            self.ui.par2_label.setToolTip(tooltip)
             self.ui.par3_label.setText("Max_fpr")
-            self.ui.par3_label.setToolTip("Входной тензор модели")
+            tooltip = "Определяет величину возвращаемого стандартизированного частичного AUC в диапазоне от 0 до max_fpr"
+            self.ui.par3_label.setToolTip(tooltip)
             self.ui.par4_label.setText("Multiclass")
-            self.ui.par4_label.setToolTip("Входной тензор модели")
+            self.ui.par4_label.setToolTip("Тип метрики для многоклассовой классификации")
             self.ui.par5_label.setText("Labels")
-            self.ui.par5_label.setToolTip("Входной тензор модели")
+            self.ui.par5_label.setToolTip("Список меток что определяют классы предсказаний")
             self.logic.hide_elements(self.ui, 5)
             self.resize(300, 300)
             self.ui.buttons.move(110, 260)
@@ -769,10 +782,15 @@ class Settings(QMainWindow):
         elif self.win_type == 2:
             metric = self.logic.pass_metric_settings(self.ui)
             return True, metric
-        else:
+        elif self.win_type == 3:
             callback = self.logic.pass_callbacks_settings(self.ui)
-            print(callback)
             return True, callback
+        elif self.win_type == 4:
+            net = self.logic.pass_net_settings(self.ui)
+            return True, net
+        else:
+            check_metric = self.logic.pass_check_metric_settings(self.ui)
+            return True, check_metric
 
         
             

@@ -4,6 +4,7 @@ from PyQt5 import QtCore, QtGui
 from forms import main
 import check_class, construct_class, train_class, sys
 
+
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
         QMainWindow.__init__(self, parent)
@@ -40,4 +41,3 @@ if __name__ == "__main__":
     window.show()
     sys.exit(app.exec_())
 
-        

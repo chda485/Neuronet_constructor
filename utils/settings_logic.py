@@ -24,6 +24,7 @@ class SettingsLogic():
             ui.par7_label.setVisible(False)
             ui.par8_label.setVisible(False)
             ui.par9_label.setVisible(False)
+            ui.par10_label.setVisible(False)
             ui.par1.setVisible(True)
             ui.par2.setVisible(False)
             ui.par3.setVisible(False)
@@ -33,6 +34,7 @@ class SettingsLogic():
             ui.par7.setVisible(False)
             ui.par8.setVisible(False)
             ui.par9.setVisible(False)
+            ui.par10.setVisible(False)
         elif number == 2:
             ui.par1_label.setVisible(True)
             ui.par2_label.setVisible(True)
@@ -43,6 +45,7 @@ class SettingsLogic():
             ui.par7_label.setVisible(False)
             ui.par8_label.setVisible(False)
             ui.par9_label.setVisible(False)
+            ui.par10_label.setVisible(False)
             ui.par1.setVisible(True)
             ui.par2.setVisible(True)
             ui.par3.setVisible(False)
@@ -52,6 +55,7 @@ class SettingsLogic():
             ui.par7.setVisible(False)
             ui.par8.setVisible(False)
             ui.par9.setVisible(False)
+            ui.par10.setVisible(False)
         elif number == 3:
             ui.par1_label.setVisible(True)
             ui.par2_label.setVisible(True)
@@ -62,6 +66,7 @@ class SettingsLogic():
             ui.par7_label.setVisible(False)
             ui.par8_label.setVisible(False)
             ui.par9_label.setVisible(False)
+            ui.par10_label.setVisible(False)
             ui.par1.setVisible(True)
             ui.par2.setVisible(True)
             ui.par3.setVisible(True)
@@ -71,6 +76,7 @@ class SettingsLogic():
             ui.par7.setVisible(False)
             ui.par8.setVisible(False)
             ui.par9.setVisible(False)
+            ui.par10.setVisible(False)
         elif number == 4:
             ui.par1_label.setVisible(True)
             ui.par2_label.setVisible(True)
@@ -81,6 +87,7 @@ class SettingsLogic():
             ui.par7_label.setVisible(False)
             ui.par8_label.setVisible(False)
             ui.par9_label.setVisible(False)
+            ui.par10_label.setVisible(False)
             ui.par1.setVisible(True)
             ui.par2.setVisible(True)
             ui.par3.setVisible(True)
@@ -90,6 +97,7 @@ class SettingsLogic():
             ui.par7.setVisible(False)
             ui.par8.setVisible(False)
             ui.par9.setVisible(False)
+            ui.par10.setVisible(False)
         elif number == 5:
             ui.par1_label.setVisible(True)
             ui.par2_label.setVisible(True)
@@ -100,6 +108,7 @@ class SettingsLogic():
             ui.par7_label.setVisible(False)
             ui.par8_label.setVisible(False)
             ui.par9_label.setVisible(False)
+            ui.par10_label.setVisible(False)
             ui.par1.setVisible(True)
             ui.par2.setVisible(True)
             ui.par3.setVisible(True)
@@ -109,6 +118,7 @@ class SettingsLogic():
             ui.par7.setVisible(False)
             ui.par8.setVisible(False)
             ui.par9.setVisible(False)
+            ui.par10.setVisible(False)
         elif number == 6:
             ui.par1_label.setVisible(True)
             ui.par2_label.setVisible(True)
@@ -119,6 +129,7 @@ class SettingsLogic():
             ui.par7_label.setVisible(False)
             ui.par8_label.setVisible(False)
             ui.par9_label.setVisible(False)
+            ui.par10_label.setVisible(False)
             ui.par1.setVisible(True)
             ui.par2.setVisible(True)
             ui.par3.setVisible(True)
@@ -128,6 +139,7 @@ class SettingsLogic():
             ui.par7.setVisible(False)
             ui.par8.setVisible(False)
             ui.par9.setVisible(False)
+            ui.par10.setVisible(False)
         elif number == 7:
             ui.par1_label.setVisible(True)
             ui.par2_label.setVisible(True)
@@ -138,6 +150,7 @@ class SettingsLogic():
             ui.par7_label.setVisible(True)
             ui.par8_label.setVisible(False)
             ui.par9_label.setVisible(False)
+            ui.par10_label.setVisible(False)
             ui.par1.setVisible(True)
             ui.par2.setVisible(True)
             ui.par3.setVisible(True)
@@ -147,6 +160,7 @@ class SettingsLogic():
             ui.par7.setVisible(True)
             ui.par8.setVisible(False)
             ui.par9.setVisible(False)
+            ui.par10.setVisible(False)
         elif number == 8:
             ui.par1_label.setVisible(True)
             ui.par2_label.setVisible(True)
@@ -157,6 +171,7 @@ class SettingsLogic():
             ui.par7_label.setVisible(True)
             ui.par8_label.setVisible(True)
             ui.par9_label.setVisible(False)
+            ui.par10_label.setVisible(False)
             ui.par1.setVisible(True)
             ui.par2.setVisible(True)
             ui.par3.setVisible(True)
@@ -166,6 +181,28 @@ class SettingsLogic():
             ui.par7.setVisible(True)
             ui.par8.setVisible(True)
             ui.par9.setVisible(False)
+            ui.par10.setVisible(False)
+        elif number == 9:
+            ui.par1_label.setVisible(True)
+            ui.par2_label.setVisible(True)
+            ui.par3_label.setVisible(True)
+            ui.par4_label.setVisible(True)
+            ui.par5_label.setVisible(True)
+            ui.par6_label.setVisible(True)
+            ui.par7_label.setVisible(True)
+            ui.par8_label.setVisible(True)
+            ui.par9_label.setVisible(True)
+            ui.par10_label.setVisible(False)
+            ui.par1.setVisible(True)
+            ui.par2.setVisible(True)
+            ui.par3.setVisible(True)
+            ui.par4.setVisible(True)
+            ui.par5.setVisible(True)
+            ui.par6.setVisible(True)
+            ui.par7.setVisible(True)
+            ui.par8.setVisible(True)
+            ui.par9.setVisible(True)
+            ui.par10.setVisible(False)
         else:
             ui.par1_label.setVisible(True)
             ui.par2_label.setVisible(True)
@@ -176,6 +213,7 @@ class SettingsLogic():
             ui.par7_label.setVisible(True)
             ui.par8_label.setVisible(True)
             ui.par9_label.setVisible(True)
+            ui.par10_label.setVisible(True)
             ui.par1.setVisible(True)
             ui.par2.setVisible(True)
             ui.par3.setVisible(True)
@@ -185,6 +223,7 @@ class SettingsLogic():
             ui.par7.setVisible(True)
             ui.par8.setVisible(True)
             ui.par9.setVisible(True)
+            ui.par10.setVisible(True)
             
         if bool_num == 0:
             ui.bool_check1.setVisible(False)
@@ -753,6 +792,68 @@ class SettingsLogic():
                                              input_shape=input_shape, classes=classes,
                                              pooling=pooling)
                 return net
+
+    def pass_check_metric_settings(self, ui):
+        results = ""
+        results += "true_lables|" + ui.par1.text() + ";" if len (
+            ui.par1.text()) != 0 else ""
+        results += "sample_weight|" + ui.par2.text() + ";" if len(
+            ui.par2.text()) != 0 else ""
+        if ui.list.currentText() == "F1" or ui.list.currentText() == "Precision" or (
+           ui.list.currentText() == "Recall") or ui.list.currentText() == "Jaccard":
+               results += "labels|" + ui.par3.text() + ";" if len(
+                   ui.par3.text()) != 0 else ""
+               results += "pos_label|" + ui.par4.text() + ";" if len(
+                   ui.par4.text()) != 0 else ""
+               results += "average|" + ui.par5.text() + ";" if len(
+                   ui.par5.text()) != 0 else ""
+               results += "zero_division|" + ui.par6.text() if len(
+                   ui.par6.text()) != 0 else ""
+
+        elif ui.list.currentText() == "Accuracy":
+            results += "normalize|" + str(ui.bool_check2.isChecked())
+
+        elif ui.list.currentText() == "Balanced_accuracy":
+            results += "adjusted|" + str(ui.bool_check2.isChecked())
+
+        elif ui.list.currentText() == "Top_K_accuracy":
+            results += "normalize|" + str(ui.bool_check2.isChecked()) + ";"
+            results += "k:" + ui.par4.text() + ";" if len(
+                ui.par4.text()) != 0 else ""
+            results += "labels|" + ui.par5.text() if len(
+                ui.par5.text()) != 0 else ""
+
+        elif ui.list.currentText() == "Average_precision":
+            results += "pos_label|" + ui.par3.text() + ";" if len(
+                ui.par3.text()) != 0 else ""
+            results += "average|" + ui.par4.text() if len(
+                ui.par4.text()) != 0 else ""
+
+        elif ui.list.currentText() == "Neg_brief":
+            results += "pos_label|" + ui.par3.text() if len(
+                ui.par3.text()) != 0 else ""
+
+        elif ui.list.currentText() == "Neg_log":
+            results += "normalize|" + str(ui.bool_check2.isChecked()) + ";"
+            results += "eps:" + ui.par4.text() + ";" if len(
+                ui.par4.text()) != 0 else ""
+            results += "labels|" + ui.par5.text() if len(
+                ui.par5.text()) != 0 else ""
+
+        elif ui.list.currentText() == "ROC_AUC":
+            results += "average|" + ui.par3.text() + ";" if len(
+                ui.par3.text()) != 0 else ""
+            results += "max_fpr|" + ui.par4.text() + ";" if len(
+                ui.par4.text()) != 0 else ""
+            results += "multi_class|" + ui.par5.text() + ";" if len(
+                ui.par5.text()) != 0 else ""
+            results += "labels|" + ui.par6.text() if len(
+                ui.par6.text()) != 0 else ""           
+
+        #убираем последнее ; если есть
+        if results[-1] == ';':
+            results = results[:-1]
+        return results
 
     def choice_fun_file(self, obj):
     	#открываем окно поиска файла с функцией
