@@ -245,37 +245,38 @@ class CheckWindow(QMainWindow):
         и выводится результат"""       
     def test_model(self): 
         #если выбрана модель с диска и сама модель не выбрана
-        if self.ui.disk_check.isChecked() and len(self.model_path) == 0:
+        if self.ui.disk_check.isChecked() and len(self.model_path) == 0: #OK
             er_win = QtWidgets.QErrorMessage(self)
             er_win.showMessage("Не выбрана модель для тестирования")
             return
         
         #если модель с диска выбрана
-        elif self.ui.disk_check.isChecked():
+        elif self.ui.disk_check.isChecked(): #OK
             self.model = load_model(self.model_path)
         
         #если модель из списка
-        elif self.ui.list_check.isChecked():
+        elif self.ui.list_check.isChecked(): #OK
             #если были выбраны какие-то настройки
             if self.ready_net is not None:
                 self.model = self.ready_net
             #если нет, просто берём сеть по умолчанию из keras
             else:
                 self.model = helper.LIST_READY_NETS[self.ui.list_of_nets.currentText()]
+        
         #форма входных данных модели
-        self.input_shape = self.model.layers[0].input_shape
+        self.input_shape = self.model.layers[0].input_shape #OK
         
         #если не выбраны данные для тестирования
-        if self.check_dataset is None:
+        if self.check_dataset is None: #OK
             er_win = QtWidgets.QErrorMessage(self)
             er_win.showMessage("Не выбраны данные для проверки модели")
             return
         
         #проверяем, сколько экземпляров для тестирования
-        one_file = True if len(os.listdir(self.check_dataset)) == 1 else False
+        one_file = True if len(os.listdir(self.check_dataset)) == 1 else False #OK
         
         #создаём список для всех файлов тестирования
-        files = os.listdir(self.check_dataset)
+        files = os.listdir(self.check_dataset) #OK
         samples = []
         for file in files:
             #загружаем файлы и преобразуем их в нужный формат
@@ -292,12 +293,11 @@ class CheckWindow(QMainWindow):
                     from keras.applications.imagenet_utils import preprocess_input
                     img = preprocess_input(img)
                     img = cv2.resize(img, (224, 224))
-            samples.append(img)
-        
+            samples.append(img)       
         samples = np.asarray(samples)
         
         #если выбрана модель с диска
-        if self.ui.disk_check.isChecked():            
+        if self.ui.disk_check.isChecked(): #OK           
             #если данные меток текстовые, то кодируем их 
             if type(self.true_labels[0]) is str:
                 #если использовался LabelBinarazer при обучении
@@ -319,25 +319,23 @@ class CheckWindow(QMainWindow):
                     pred = np.argsort(pred)[::-1]
                     temp.append(pred)
                 self.preds_label = np.asarray(temp)
-        
+            #считаем процент верных предсказаний
+            truths = []
+            for (T, P) in zip(self.true_labels, self.preds_label):
+                truths.append(T == P)
+            truths = np.asarray(truths)
+            accuracy = np.cout_nonzero(truths) / len(truths)
+            self.ui.console_train.append("Точность модели - {}%".fromat(np.around(accuracy*100, 2)))
+              
         #если модель из списка    
-        else:
+        else: #NO OK!!!!!!!!!!!!!
             #если числове метки, декодироуем их в строковые согласно предоставленному файлу
             if type(self.true_labels[0]) is int:
                 self.decode_labels()
             #делаем предсказания и преобразуем их в строки
             self.preds_label = self.model.predict(samples)
             self.preds_label = imagenet_utils.decode_predictions(self.preds_label)
-        
-        truths = []
-        #считаем процент верных предсказаний
-        for (T, P) in zip(self.true_labels, self.preds_label):
-            truths.append(T == P)
-        truths = np.asarray(truths)
-        accuracy = np.cout_nonzero(truths) / len(truths)
-        self.ui.console_train.append("Точность модели - {}%".fromat(np.around(accuracy*100, 2)))
-        
-            
+         
         #если выбрана опция рассчёта метрики
         if self.ui.metric_check.isChecked():
             #парсим настройки метрики из строки и считаем её
@@ -346,7 +344,14 @@ class CheckWindow(QMainWindow):
                 self.ui.metrics_list.currentText, np.around(self.metric * 100, 2)))
             
         #если выбрана опция рассчёта rank
+
         if self.ui.rank_check.isChecked():
+            #если недостаточно файлов
+            if one_file:
+                er_win = QtWidgets.QErrorMessage(self)
+                er_win.showMessage("Недостаточно файлов для расчёта rank")
+                return
+            
             (r1, r5) = helper.rank5_accuracy(self.preds_label, self.true_labels)
             self.console_train.append("R1 - {}, R5 - {}".format(
                 np.around(r1*100, 2), np.around(r5*100, 2)))               

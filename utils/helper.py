@@ -126,7 +126,7 @@ def check_input(shape):
             return False
     return True
 
-def check_settings(settings, bools=(None,None), buttons_par=None):
+def check_settings(settings, bools=(None,None), buttons_par=(None,)):
     answer = False
     #проверяем установку обычных параметров
     for set_ in settings:
@@ -144,7 +144,7 @@ def check_settings(settings, bools=(None,None), buttons_par=None):
             return answer
     #проверяем установку параметров-кнопок
     for par in buttons_par:
-        if par:
+        if par is not None:
             answer = True
             return answer
     return answer

@@ -17,8 +17,8 @@ class ConstructWindow(QMainWindow):
         self.ui = construct_window.Ui_MainWindow()
         self.ui.setupUi(self)
         # установка вывода в консоль если делали перенаправление, для корректной работы отладочных print
-        self.stdout = stdout
-        sys.stdout = stdout
+        #self.stdout = stdout
+        #sys.stdout = stdout
 
         self.ui.close_button.clicked.connect(self.close)
         self.ui.add_button.clicked.connect(self.show_layers)
@@ -77,7 +77,12 @@ class ConstructWindow(QMainWindow):
             if index is not None:
                 self.model.removeRow(index)
             #создаем объект списка
-            item = QtGui.QStandardItem(layer)
+            item = QtGui.QStandardItem(self.reconstruct_layer_str(layer))
+            #считаем число строк в представлении слоя
+            str_num = item.text().count('\n')
+            height = 20 if (str_num == 0) else 30 + (20 * str_num)
+            size = QtCore.QSize(60, height)
+            item.setSizeHint(size)
             font = QtGui.QFont()
             font.setFamily("Times New Roman")
             font.setPointSize(14)
@@ -445,7 +450,24 @@ class ConstructWindow(QMainWindow):
             return int(str_tuple)
         tup = str_tuple.split(',')
         return tuple([x for x in tup])
-            
+    
+    def reconstruct_layer_str(self, layer_str):
+        if layer_str.count(':') == 0:
+            return layer_str
+        layer_str = layer_str.replace(': ', ':\n')
+        array = layer_str.split('\n')[1].split(' ')
+        counter = 0
+        sets = ""
+        for item in array:
+            if counter == 2:
+                item += '\n'
+                counter = 0
+            else:
+                counter += 1
+                item += ' '
+            sets += item
+        layer_str = layer_str.split('\n')[0] + '\n' + sets
+        return layer_str
             
             
 

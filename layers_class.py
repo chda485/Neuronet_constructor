@@ -578,6 +578,8 @@ class Layers(QMainWindow):
             if len(self.ui.inputShape.text()) != 0:
                 results += "input_shape=" + self.ui.inputShape.text() + "; "
             results += "data_format=" + self.ui.par2.text() if len(self.ui.par1.text()) !=0 else ""
+            if results.endswith(": "):
+                results = results[:-2]
             return True, results, self.index
 
         elif self.ui.list.currentText() == "GlobalMaxPool2D":
@@ -585,6 +587,8 @@ class Layers(QMainWindow):
             if len(self.ui.inputShape.text()) != 0:
                 results += "input_shape=" + self.ui.inputShape.text() + "; "
             results += "data_format=" + self.ui.par2.text() if len(self.ui.par1.text()) !=0 else ""
+            if results.endswith(": "):
+                results = results[:-2]
             return True, results, self.index
 
         elif self.ui.list.currentText() == "MaxPooling2D":
