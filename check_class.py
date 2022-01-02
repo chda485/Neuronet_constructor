@@ -51,6 +51,7 @@ class CheckWindow(QMainWindow):
         self.ui.true_labels.clicked.connect(self.get_true_labels)
         
         self.ui.check_button.clicked.connect(self.proba)
+        sys.stdout = self
 
     def list_choice(self):
         self.ui.list_of_nets.setEnabled(True)
@@ -326,35 +327,45 @@ class CheckWindow(QMainWindow):
             truths = np.asarray(truths)
             accuracy = np.cout_nonzero(truths) / len(truths)
             self.ui.console_train.append("Точность модели - {}%".fromat(np.around(accuracy*100, 2)))
+            
+            #если выбрана опция рассчёта метрики
+            if self.ui.metric_check.isChecked():
+                #парсим настройки метрики из строки и считаем её
+                self.parse_metric_str()
+                self.ui.console_train.append("{} - {}%".format(
+                    self.ui.metrics_list.currentText, np.around(self.metric * 100, 2)))
+                
+            #если выбрана опция рассчёта rank
+            if self.ui.rank_check.isChecked():
+                #если недостаточно файлов
+                if one_file:
+                    er_win = QtWidgets.QErrorMessage(self)
+                    er_win.showMessage("Недостаточно файлов для расчёта rank")
+                    return
+                
+                (r1, r5) = helper.rank5_accuracy(self.preds_label, self.true_labels)
+                self.console_train.append("R1 - {}, R5 - {}".format(
+                    np.around(r1*100, 2), np.around(r5*100, 2)))  
               
         #если модель из списка    
-        else: #NO OK!!!!!!!!!!!!!
-            #если числове метки, декодироуем их в строковые согласно предоставленному файлу
-            if type(self.true_labels[0]) is int:
-                self.decode_labels()
-            #делаем предсказания и преобразуем их в строки
-            self.preds_label = self.model.predict(samples)
-            self.preds_label = imagenet_utils.decode_predictions(self.preds_label)
-         
-        #если выбрана опция рассчёта метрики
-        if self.ui.metric_check.isChecked():
-            #парсим настройки метрики из строки и считаем её
-            self.parse_metric_str()
-            self.ui.console_train.append("{} - {}%".format(
-                self.ui.metrics_list.currentText, np.around(self.metric * 100, 2)))
-            
-        #если выбрана опция рассчёта rank
-
-        if self.ui.rank_check.isChecked():
-            #если недостаточно файлов
+        else: 
+            #если предоставлен один файл
             if one_file:
-                er_win = QtWidgets.QErrorMessage(self)
-                er_win.showMessage("Недостаточно файлов для расчёта rank")
-                return
-            
-            (r1, r5) = helper.rank5_accuracy(self.preds_label, self.true_labels)
-            self.console_train.append("R1 - {}, R5 - {}".format(
-                np.around(r1*100, 2), np.around(r5*100, 2)))               
+                result = self.model.predict(samples)
+                result = imagenet_utils.decode_predictions(result)[0]
+                self.ui.console_train.append("Предсказанная категория - {}".format(result))
+            #если предоставлено несколько файлов
+            else:
+                results = self.model.predict(samples)
+                results = imagenet_utils.decode_predictions(result)[0]
+                #создаём файл и записываем туда предсказания построчно
+                f = open("results.txt", 'w+')
+                for result, file in zip(results, os.listdir(self.dataset)):
+                    line = "File: {}\t\t Predicted: {}\n".format(file, result)
+                    f.write(line)
+                f.close()
+                self.ui.console_train.append("Путь к файлу предсказаний - {}".format(
+                    os.path.join(os.getcwd(), 'results.txt')))
     
     def decode_labels(self):
         decod = {}
@@ -396,8 +407,7 @@ class CheckWindow(QMainWindow):
         sys.stdout = self.old_stdout
         
     def proba(self):
-        x = r"G:\proba.csv"
-        print(self.read_csv_labels(x))
+        print("proba")
 
 #("k:2", "average:macro")
 #((k,2), (average, macro))

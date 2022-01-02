@@ -247,7 +247,6 @@ class TrainWindow(QMainWindow):
                 self.loss = obj
             elif win_type == 2:
                 self.metric = obj
-                print(self.metric)
             else: self.callback = obj
 
     """алгоритм работы функции обучения:
@@ -280,16 +279,9 @@ class TrainWindow(QMainWindow):
             return
 
         if self.inputShape is None:
-            #если форма данных не установлена, конструируем
-            shape = helper.construct_shape(self.dataset_path)
-            #если сконструировали успешно
-            if shape is not None:
-                shape = "".join([str(x) + ',' for x in np.asarray(shape)])
-                self.inputShape = shape[:-1]
-                self.ui.console_train.append("InputShape is: {}".format(self.inputShape))
-            #если не смогли сконструировать
-            else:
-                self.ui.console_train.append("Некорректный датасет")
+            #если форма данных не установлена, берём по умолчанию
+            if self.ui.list_check.isChecked():
+                self.inputShape = (224,224,3)
                 
         if self.opt is None:
             self.opt = self.ui.opts_list.currentText()
@@ -307,11 +299,18 @@ class TrainWindow(QMainWindow):
         builder = NetBuilder()
         if self.ui.disk_check.isChecked():
             model = load_model(self.path_model)
+            #перестраиваем последний слой на нужное число выходных нейронов
+            model = builder.rebuild_last_layer(model, self.dataset_path)
+            self.inputShape = model.layers[0].input_shape[0][1:]
+            from_disk = True
         else:
             model = builder.build_model(self.ui.list_of_nets.currentText(),
                                             self.inputShape,
                                             self.dataset_path)
-        
+            from_disk = False
+            
+        self.ui.console_train.append("InputShape is: {}".format(self.inputShape))
+            
         #проверяем, выбрана ли опция "отобразить диаграмму сети"
         diagramm = self.ui.show_check.isChecked()
         #если выбрана либо установлен путь к файлу диаграммы
@@ -333,17 +332,18 @@ class TrainWindow(QMainWindow):
                 os.remove(path)
 
         #делаем отмену вывода в консоль хода обучения, если на выбрали опцию подробного отчета
-        if not self.ui.otchet_check.isChecked():
-            devnull = open(os.devnull, "w")
-            old = sys.stdout
-            sys.stdout = devnull
-
+       # if not self.ui.otchet_check.isChecked():
+            #devnull = open(os.devnull, "w")
+            #old = sys.stdout
+            #sys.stdout = devnull
+        
         results, model = builder.model_train(model, self.opt, self.loss, self.metric,
-                                         self.ui.epochs.text(), self.dataset_path,
-                                         detail_result=self.ui.result_check.isChecked())
-
-        if not self.ui.otchet_check.isChecked():
-            sys.stdout = old
+                                             self.ui.epochs.text(), self.dataset_path,
+                                             detail_result=self.ui.result_check.isChecked(),
+                                             from_disk=from_disk)
+        
+        #if not self.ui.otchet_check.isChecked():
+         #   sys.stdout = old
 
         plots = self.ui.display_plots.isChecked()
         if plots or self.plots_file is not None:
@@ -363,6 +363,7 @@ class TrainWindow(QMainWindow):
             os.remove("incl_fun.py")
             
         #print(results[0])
+        
 
 
     def write(self, text):

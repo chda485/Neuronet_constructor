@@ -35,6 +35,31 @@ class MainWindow(QMainWindow):
         self.check_window.setWindowModality(QtCore.Qt.ApplicationModal)
         self.check_window.show()
 
+'''
+def prepare_dataset():
+    import os, shutil
+    PATH = r"/home/dmitry/Документы/17FlowerOxfordDataset"
+    cats = os.listdir(PATH)
+    train = os.path.join(PATH, 'train')
+    os.mkdir(train)
+    test = os.path.join(PATH, 'test')
+    os.mkdir(test)
+    val = os.path.join(PATH, 'validation')
+    os.mkdir(val)
+    for cat in cats:
+        folder = os.path.join(PATH, cat)
+        os.mkdir(os.path.join(train, cat))
+        os.mkdir(os.path.join(test, cat))
+        os.mkdir(os.path.join(val, cat))
+        num_files = len(os.listdir(folder))
+        for i, file in enumerate(os.listdir(folder)):
+            if i <= int(num_files * 0.7):
+                shutil.move(os.path.join(folder, file), os.path.join(train, cat, file))
+            elif i > int(num_files * 0.7) and i <= int(num_files * 0.9):
+                shutil.move(os.path.join(folder, file), os.path.join(val, cat, file))
+            else:
+                shutil.move(os.path.join(folder, file), os.path.join(test, cat, file))
+'''    
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     window = MainWindow()

@@ -5,7 +5,6 @@ import helper, os
 import numpy as np
 import csv
 
-
 class SettingsLogic():
     def __init__(self, win_type, parent):
         self.win_type = win_type
@@ -251,7 +250,7 @@ class SettingsLogic():
         lr = float(ui.par1.text()) if len(ui.par1.text()) != 0 else 0.01
         if ui.list.currentText() == "SGD":
             momentum = float(ui.par3.text()) if len(ui.par3.text()) != 0 else 0.0
-            opt = optimizers.SGD(learning_rate=lr, momentum=momentum, 
+            opt = optimizers.gradient_descent_v2.SGD(learning_rate=lr, momentum=momentum, 
                                  nesterov=ui.bool_check1.isChecked())
             return opt
         
@@ -259,7 +258,7 @@ class SettingsLogic():
             epsilon = ui.par5.text() if len(ui.par5.text()) != 0 else 1e-7
             momentum = float(ui.par3.text()) if len(ui.par3.text()) != 0 else 0.0
             rho = float(ui.par4.text()) if len(ui.par4.text()) != 0 else 0.9
-            opt = optimizers.RMSprop(learning_rate=lr, epsilon=epsilon,
+            opt = optimizers.rmsprop_v2.RMSprop(learning_rate=lr, epsilon=epsilon,
                                      momentum=momentum,
                                      centered=ui.bool_check1.isChecked())
             return opt
@@ -268,7 +267,7 @@ class SettingsLogic():
             beta1 = float(ui.par4.text()) if len(ui.par4.text()) != 0 else 0.9
             beta2 = float(ui.par5.text()) if len(ui.par5.text()) != 0 else 0.999
             epsilon = float(ui.par3.text()) if len(ui.par3.text()) != 0 else 1e-7
-            opt = optimizers.Adam(learning_rate=lr, beta_1=beta1,
+            opt = optimizers.adam_v2.Adam(learning_rate=lr, beta_1=beta1,
                                   beta_2=beta2, epsilon=epsilon,
                                   amsgrad=ui.bool_check1.isChecked())
             return opt
@@ -276,7 +275,7 @@ class SettingsLogic():
         elif ui.list.currentText() == "Adadelta":
             epsilon = float(ui.par3.text()) if len(ui.par3.text()) != 0 else 1e-7
             rho = float(ui.par2.text()) if len(ui.par2.text()) != 0 else 0.95
-            opt = optimizers.Adadelta(learning_rate=lr, rho=rho,
+            opt = optimizers.adadelta_v2.Adadelta(learning_rate=lr, rho=rho,
                                       epsilon=epsilon)
             return opt
         
@@ -284,14 +283,14 @@ class SettingsLogic():
             beta1 = float(ui.par3.text()) if len(ui.par3.text()) != 0 else 0.9
             beta2 = float(ui.par4.text()) if len(ui.par4.text()) != 0 else 0.999
             epsilon = float(ui.par2.text()) if len(ui.par2.text()) != 0 else 1e-7
-            opt = optimizers.Nadam(learning_rate=lr, beta_1=beta1,
+            opt = optimizers.nadam_v2.Nadam(learning_rate=lr, beta_1=beta1,
                                    beta_2=beta2, epsilon=epsilon)
             return opt
         
         elif ui.list.currentText() == "Adagrad":
             in_acc_val = float(ui.par3.text()) if len(ui.par3.text()) != 0 else 0.1
             epsilon = float(ui.par2.text()) if len(ui.par2.text()) != 0 else 1e-7
-            opt = optimizers.Adagrad(learning_rate=lr,
+            opt = optimizers.adagrad_v2.Adagrad(learning_rate=lr,
                                      initial_accumulator_value=in_acc_val,
                                      epsilon=epsilon)
             return opt
@@ -300,7 +299,7 @@ class SettingsLogic():
             beta1 = float(ui.par3.text()) if len(ui.par3.text()) != 0 else 0.9
             beta2 = float(ui.par4.text()) if len(ui.par4.text()) != 0 else 0.999
             epsilon = float(ui.par2.text()) if len(ui.par2.text()) != 0 else 1e-7
-            opt = optimizers.Adamax(learning_rate=lr, beta_1=beta1,
+            opt = optimizers.adamax_v2.Adamax(learning_rate=lr, beta_1=beta1,
                                    beta_2=beta2, epsilon=epsilon)
             return opt
         
@@ -311,7 +310,7 @@ class SettingsLogic():
             l2_reg_str = float(ui.par4.text()) if len(ui.par4.text()) != 0 else 0.0
             l2_shrin = float(ui.par5.text()) if len(ui.par5.text()) != 0 else 0.0
             beta = float(ui.par6.text()) if len(ui.par6.text()) != 0 else 0.0
-            opt = optimizers.Ftrl(learning_rate=lr, learning_rate_power=lr_power,
+            opt = optimizers.ftrl.Ftrl(learning_rate=lr, learning_rate_power=lr_power,
                                   initial_accumulator_value=in_acc_val,
                                   l1_regularization_strength=l1_reg_str,
                                   l2_regularization_strength=l2_reg_str,

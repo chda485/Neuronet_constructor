@@ -9,7 +9,7 @@ class NetBuilder():
         self.classes = None
     
     def preprocess_data(self, file, shape):
-        return cv2.reshape(file, shape)
+        return cv2.resize(file, shape[:-1])
     
     def prepare_data(self, path, needed_shape=(224, 224, 3)):
         X_train = []
@@ -26,9 +26,9 @@ class NetBuilder():
         Y_tuple = (Y_train, Y_val, Y_test)
         for element in zip(dir_tuple, X_tuple, Y_tuple):
             self.classes = os.listdir(element[0])
-            #print(element)
+            print(element)
             for classes in os.listdir(element[0]):
-                #print(classes)
+                print(classes)
                 for files in os.listdir(os.path.join(element[0], classes)):
                     file = cv2.imread(os.path.join(element[0], classes, files))
                     if file.shape != needed_shape:
@@ -53,19 +53,36 @@ class NetBuilder():
         
     def build_model(self, model_name, inputShape, dataset=None):
         model_class = helper.LISTS_NEURONETS[model_name]
-        shape = inputShape.split(',')
-        new_shape = []
-        for s in shape:
-            new_shape.append(int(s))
+        if type(inputShape) is str:
+            shape = inputShape.split(',')
+            new_shape = []
+            for s in shape:
+                new_shape.append(int(s))
+        else:
+            new_shape = inputShape
         if dataset:
             dir_ = os.listdir(dataset)[0]
             classes = len(os.listdir(os.path.join(dataset, dir_)))
             return model_class.build(new_shape, classes)
         else: return model_class.build(new_shape)
+        
+    def rebuild_last_layer(self, model, dataset):
+        if model.layers[-1].output_shape[-1] == 1:
+            return model
+        else:
+            num_classes = len(os.listdir(os.path.join(dataset, os.listdir(dataset)[0])))
+            new_layer = keras.layers.Dense(num_classes, activation="sigmoid")(
+                model.layers[-2].output)
+            new_model = keras.Model(inputs=model.input, outputs=new_layer)
+            return new_model
 
     def model_train(self, model, opt, loss_fun, metric,
-                    epochs, dataset_path, batch_size=32, detail_result=False):
-        X, Y = self.prepare_data(dataset_path)
+                    epochs, dataset_path, batch_size=32, detail_result=False,
+                    from_disk=False):
+        if from_disk:
+            X, Y = self.prepare_data(dataset_path, model.layers[0].input_shape[0][1:])
+        else:
+            X, Y = self.prepare_data(dataset_path, model.layers[0].input_shape[1:])
         if type(opt) == str:
             optimizer = opt.lower()
         else: 
@@ -78,9 +95,7 @@ class NetBuilder():
             loss = helper.LIST_LOSSES[loss_fun]
         else:
             loss = loss_fun
-        #print(loss)
-        #print(optimizer)
-        #print(metric)
+
         model.compile(loss=loss, optimizer=optimizer, metrics=[metric])
         
         #СДЕЛАТЬ БЛОКИРОВКУ ВЫВОДА В КОНСОЛЬ, ЕСЛИ НЕ ВЫБРАН ПОДРОБНЫЙ ОТЧЕТ О ХОДЕ ОБУЧЕНИЯ
