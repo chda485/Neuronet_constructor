@@ -23,7 +23,7 @@ class TrainWindow(QMainWindow):
         #назначаем значения всем спискам
         self.ui.list_of_nets.addItems(helper.LISTS_NEURONETS.keys())
         self.ui.loss_list.addItems(helper.LIST_LOSSES.keys())
-        self.ui.metrics_list.addItems(helper.LIST_METRICS)
+        self.ui.metrics_list.addItems(helper.LIST_METRICS.keys())
         self.ui.opts_list.addItems(helper.LIST_OPTS)
         self.ui.callbacks_list.addItems(helper.LIST_CALLBACKS)
         self.ui.label.setFocus()
@@ -32,7 +32,7 @@ class TrainWindow(QMainWindow):
         self.path_model = "" #путь к файлу модели, которая открывается
         self.model_path = "" #путь к сохраняемому файлу модели
         self.diagramm_file = "" #путь к сохраняемому файлу диаграммы сети !!!!!!
-        self.plots_file = "" #путь к сохраняемому файлу графиков обучения
+        self.plots_file = None #путь к сохраняемому файлу графиков обучения
         self.path_weights = "" #путь к сохраняемому файлу весов модели
         self.inputShape = None 
         self.opt = None 
@@ -42,6 +42,13 @@ class TrainWindow(QMainWindow):
         self.neuronet = None
 
         self.settings = None #переменная для класса с настройками оптимизаторов, метрик и т.п.
+        
+        #переменные для сопровождение повторного обучения      
+        self.again_train = False
+        self.loss_set = False
+        self.metric_set = False
+        self.opt_set = False
+        self.callback_set = False
         
         self.ui.tabWidget.setCurrentIndex(0)
         self.ui.list_check.setChecked(True)
@@ -139,7 +146,8 @@ class TrainWindow(QMainWindow):
         self.construct_window.show()
         
     def get_neuronet(self):
-        (status, net) = self.construct_window.send_model
+        (status, net) = self.construct_window.send_model()
+        self.construct_window.close()
         if status:
             self.neuronet = net
     
@@ -173,12 +181,18 @@ class TrainWindow(QMainWindow):
             if len(path[0]) > 0:
                 #если сохраняем обученную модель
                 if file == 0:
-                    self.model_path = path
-                    self.ui.console_train.append("Model path for saving: \n" + path[0])
+                    self.model_path = path[0]
+                    if not self.model_path.endswith('.h5'):
+                        self.model_path += '.h5'
+                    self.ui.console_train.append(
+                        "Model path for saving: \n" + self.model_path)
                 #если сохраняем веса модели
                 else:
-                    self.path_weights = path
-                    self.ui.console_train.append("Weights path: \n" + path[0])
+                    self.path_weights = path[0]
+                    if not self.path_weights.endswith('.h5'):
+                        self.path_weights += '.h5'
+                    self.ui.console_train.append(
+                        "Weights path: \n" + self.path_weights)
 
     def open_dataset(self):
         self.dataset_path = QtWidgets.QFileDialog.getExistingDirectory(self)
@@ -243,12 +257,23 @@ class TrainWindow(QMainWindow):
         if status:
             if win_type == 0:
                 self.opt = obj
+                self.opt_set = True
             elif win_type == 1:
                 self.loss = obj
+                self.loss_set = True
             elif win_type == 2:
                 self.metric = obj
-            else: self.callback = obj
+                self.metric_set = True
+            else: 
+                self.callback = obj
+                self.callback_set = True
 
+    def clear_settings(self):
+        self.loss_set = False
+        self.metric_set = False
+        self.callback_set = False
+        self.opt_set = False
+        
     """алгоритм работы функции обучения:
            вначале проверяется, что указаны все необходимые для обучения параметры
            После проверяется наличие ввода формы входных данных, если нет, форма конструируется из самих данных.
@@ -282,20 +307,48 @@ class TrainWindow(QMainWindow):
             #если форма данных не установлена, берём по умолчанию
             if self.ui.list_check.isChecked():
                 self.inputShape = (224,224,3)
-                
-        if self.opt is None:
-            self.opt = self.ui.opts_list.currentText()
-
-        if self.loss is None:
-            self.loss = self.ui.loss_list.currentText()
-
-        if self.metric is None:
-            self.metric = self.ui.metrics_list.currentText()
-
-        if self.callback is None and self.ui.callbacks_check.checkState() == 2:
-            self.callback = self.ui.callbacks_list.currentText()
-            self.ui.console_train.append("\nCallbacks is :" + self.ui.callbacks_list.currentText())
         
+        #если обучение запускаем в первый раз
+        if self.again_train is False:
+            if self.opt is None:
+                self.opt = self.ui.opts_list.currentText()
+    
+            if self.loss is None:
+                self.loss = self.ui.loss_list.currentText()
+    
+            if self.metric is None:
+                if self.ui.metrics_list.currentText() in helper.LIST_ADJUST_ONLY_METRICS:
+                    QtWidgets.QMessageBox.information(
+                        self, "Предупреждение", 
+                        "Данная метрика должна быть настроена вручную (второй параметр)")
+                    return
+                else:
+                    self.metric = self.ui.metrics_list.currentText()
+    
+            if self.callback is None and self.ui.callbacks_check.checkState() == 2:
+                self.callback = self.ui.callbacks_list.currentText()
+                self.ui.console_train.append("\nCallbacks is :" + self.ui.callbacks_list.currentText())
+        #если запускаем обучение повторно
+        else:
+            if self.opt_set is False:
+                self.opt = self.ui.opts_list.currentText()
+    
+            if self.loss_set is False:
+                self.loss = self.ui.loss_list.currentText()
+    
+            if self.metric_set is False:
+                if self.ui.metrics_list.currentText() in helper.LIST_ADJUST_ONLY_METRICS:
+                    QtWidgets.QMessageBox.information(
+                        self, "Предупреждение", 
+                        "Данная метрика должна быть настроена вручную (второй параметр)")
+                    return
+                else:
+                    self.metric = self.ui.metrics_list.currentText()
+    
+            if self.callback_set is False and self.ui.callbacks_check.checkState() == 2:
+                self.callback = self.ui.callbacks_list.currentText()
+                self.ui.console_train.append("\nCallbacks is :" + self.ui.callbacks_list.currentText())
+            
         builder = NetBuilder()
         if self.ui.disk_check.isChecked():
             model = load_model(self.path_model)
@@ -338,20 +391,23 @@ class TrainWindow(QMainWindow):
             #sys.stdout = devnull
         
         results, model = builder.model_train(model, self.opt, self.loss, self.metric,
-                                             self.ui.epochs.text(), self.dataset_path,
-                                             detail_result=self.ui.result_check.isChecked(),
-                                             from_disk=from_disk)
+                                            self.ui.epochs.text(), self.dataset_path,
+                                            detail_result=self.ui.result_check.isChecked(),
+                                            from_disk=from_disk)
+        
+        self.again_train = True
+        self.clear_settings()
         
         #if not self.ui.otchet_check.isChecked():
          #   sys.stdout = old
-
+        '''
         plots = self.ui.display_plots.isChecked()
         if plots or self.plots_file is not None:
             if self.plots_file is not None:
                 path = self.plots_file + "\training_plots.png"
             else:
                 path = "training_plots.png"
-            helper.show_plot(results, int(self.ui.epochs.text()), path, plots)
+            helper.show_plot(self.ui.metrics_list.currentText(), results, int(self.ui.epochs.text()), path, plots)
         
         if self.ui.model_check.isChecked() and len(self.model_path) != 0:
             model.save(self.model_path)
@@ -363,8 +419,7 @@ class TrainWindow(QMainWindow):
             os.remove("incl_fun.py")
             
         #print(results[0])
-        
-
+        '''
 
     def write(self, text):
         text = str(text).replace('\n', '').replace('0', '')

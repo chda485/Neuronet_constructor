@@ -88,7 +88,7 @@ class NetBuilder():
         else: 
             optimizer = opt
         if type(metric) == str:
-            metric = metric.lower()
+            metric = helper.LIST_METRICS[metric]
         else:
             metric = metric
         if type(loss_fun) == str:

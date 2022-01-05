@@ -1,0 +1,31 @@
+﻿binary_accuracy: 0.9268 - val_loss: 2.7012 - val_binary_accuracy: 0.9333
+
+categorical_accuracy: 0.1035 - val_loss: 2.7010 - val_categorical_accuracy: 0.1029
+
+top_k_categorical_accuracy: 0.4317 - val_loss: 2.7001 - val_top_k_categorical_accuracy: 0.3971
+
+kullback_leibler_divergence: 3.5166 - val_loss: 2.6926 - val_kullback_leibler_divergence: 2.6926
+
+cosine_similarity: 0.2402 - val_loss: 2.7084 - val_cosine_similarity: 0.2583
+
+logcosh: 0.0294 - val_loss: 2.7490 - val_logcosh: 0.0278
+
+mean_squared_logarithmic_error: 0.0334 - val_loss: 2.7061 - val_mean_squared_logarithmic_error: 0.0302
+
+auc_1: 0.5069 - val_loss: 2.7095 - val_auc_1: 0.5038
+
+loss: 24095.7695 - categorical_hinge: 1.7485
+
+root_mean_squared_error: 0.2577 - val_loss: 2.7045 - val_root_mean_squared_error: 0.2494
+
+loss: 18789.6445 - true_positives_1: 14.0000 - val_loss: 2.6619 - val_true_positives_1: 2.0000
+
+loss: 2.5171 - false_negatives_1: 912.0000 - val_loss: 2.7079 - val_false_negatives_1: 272.0000
+
+loss: 1.5977 - mean_io_u: 0.5189 - val_loss: 3.3093 - val_mean_io_u: 0.4706
+
+loss: 2.7049 - sensitivity_at_specificity: 0.0197 - val_loss: 2.7266 - val_sensitivity_at_specificity: 0.0147
+
+loss: 59521.0625 - specificity_at_sensitivity: 0.2825 - val_loss: 2.7021 - val_specificity_at_sensitivity: 0.0867
+
+loss: 1.9150 - precision_at_recall: 0.3638 - val_loss: 2.7748 - val_precision_at_recall: 0.0757

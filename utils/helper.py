@@ -1,5 +1,5 @@
 import nets
-#from keras import metrics
+from keras import metrics
 import os, cv2, shutil
 import matplotlib.pyplot as plt
 from sklearn.metrics import classification_report
@@ -31,22 +31,30 @@ LIST_LOSSES = {
     "CategoricalHinge": "categorical_hinge"
     }
 
-LIST_METRICS = [
-    "Accuracy", "BinaryAccuracy",
-    "CategoricalAccuracy", "TopKCategorical",
-    "SparseTopKCategorical",
-    "BinaryCrossentropy", "CategoricalCrossentropy",
-    "SparseCategorical", "Poisson",
-    "KLDivergence", "MAE", "MSE",
-    "MAEPercentage", "MSELogarithmic",
-    "CosineSimilarity", "RootMSE",
-    "LogCoshError", "AUC", "Precision",
-    "Recall", "TruePositives", "TrueNegatives",
-    "FalsePositives", "FalseNegatives",
+LIST_METRICS = {
+    "Accuracy": "accuracy", "BinaryAccuracy": "binary_accuracy",
+    "CategoricalAccuracy": "categorical_accuracy", "TopKCategorical": "top_k_categorical_accuracy",
+    "SparseTopKCategorical": "sparse_top_k_categorical_accuracy",
+    "BinaryCrossentropy": "binary_crossentropy", 
+    "CategoricalCrossentropy": "categorical_crossentropy",
+    "SparseCategorical": "sparse_categorical_crossentropy", "Poisson": "poisson",
+    "KLDivergence": "kullback_leibler_divergence", "MAE": "mae", "MSE": "mse",
+    "MAEPercentage": "mean_absolute_percentage_error", "MSEPLogarithmic": "mean_squared_logarithmic_error",
+    "CosineSimilarity": "cosine_similarity", "RootMSE": metrics.RootMeanSquaredError(), 
+    "LogCoshError": "logcosh", "AUC": metrics.AUC(), "Precision": "precision",
+    "Recall": "recall", "TruePositives": metrics.TruePositives(), 
+    "TrueNegatives": metrics.TrueNegatives(),
+    "FalsePositives": metrics.FalsePositives(), "FalseNegatives": metrics.FalseNegatives(),
+    "PrecisionAtRecall": "precision_at_recall", 
+    "SensitivityAtSpecificity": "sensitivity_at_specificity",
+    "SpecificityAtSensitivity": "specificity_at_sensitivity", 
+    "MeanIoU": "mean_io_u", "Hinge": "hinge", "SquaredHinge": "squared_hinge", "CategoricalHinge": "categorical_hinge"
+    }
+
+LIST_ADJUST_ONLY_METRICS = [
     "PrecisionAtRecall", "SensitivityAtSpecificity",
-    "SpecificityAtSensitivity", "MeanIoU",
-    "Hinge", "SquaredHinge", "CategoricalHinge"
-    ]
+    "SpecificityAtSensitivity", "MeanIoU"
+]
 
 LIST_OPTS = ["SGD", "RMSprop", "Adam", "Adadelta",
              "Nadam", "Adagrad", "Adamax", "Ftrl"]
@@ -183,9 +191,10 @@ def include_function(path, current):#
     import incl_fun
     return incl_fun.fun
 
-def show_plot(H, epochs, path=None, save_plots=False):
+def show_plot(metric, H, epochs, path=None, save_plots=False):
     plt.style.use("ggplot")
     plt.figure()
+    
     plt.plot(np.arange(0, epochs), H.history["loss"], label="train_loss")
     plt.plot(np.arange(0, epochs), H.history["accuracy"], label="train_accuracy")
     plt.plot(np.arange(0, epochs), H.history["val_loss"], label="val_loss")
