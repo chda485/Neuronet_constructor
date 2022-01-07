@@ -168,12 +168,16 @@ class TrainWindow(QMainWindow):
             if len(path[0]) > 0:
                 #если картинка диаграммы
                 if file == 0:
-                    self.diagramm_file = path
-                    self.ui.console_train.append("Diagramm path: \n" + path[0])
+                    self.diagramm_file = path[0]
+                    if not self.diagramm_file.endswith('.png'):
+                        self.diagramm_file += '.png'
+                    self.ui.console_train.append("Diagramm path: \n" + self.diagramm_file)
                 #если картинка графиков обучения
                 else:
-                    self.plots_file = path
-                    self.ui.console_train.append("Plots path: \n" + path[0])
+                    self.plots_file = path[0]
+                    if not self.plots_file.endswith('.png'):
+                        self.plots_file += '.png'
+                    self.ui.console_train.append("Plots path: \n" + self.plots_file)
         #если сохраняем keras-файлы
         elif name == 1:
             path = QtWidgets.QFileDialog.getSaveFileName(self,
@@ -400,13 +404,15 @@ class TrainWindow(QMainWindow):
         
         #if not self.ui.otchet_check.isChecked():
          #   sys.stdout = old
-        '''
+        
         plots = self.ui.display_plots.isChecked()
+        #если выбрана опция показа графиков обучения либо их сохранение в файл
         if plots or self.plots_file is not None:
+            #если выбрано сохранение в файл
             if self.plots_file is not None:
-                path = self.plots_file + "\training_plots.png"
+                path = self.plots_file
             else:
-                path = "training_plots.png"
+                path = None
             helper.show_plot(self.ui.metrics_list.currentText(), results, int(self.ui.epochs.text()), path, plots)
         
         if self.ui.model_check.isChecked() and len(self.model_path) != 0:
@@ -419,7 +425,7 @@ class TrainWindow(QMainWindow):
             os.remove("incl_fun.py")
             
         #print(results[0])
-        '''
+        
 
     def write(self, text):
         text = str(text).replace('\n', '').replace('0', '')

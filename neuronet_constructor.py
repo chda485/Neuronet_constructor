@@ -21,18 +21,18 @@ class MainWindow(QMainWindow):
     def show_train(self):
         self.train_window = train_class.TrainWindow(old_stdout=self.stdout)
         sys.stdout = self.train_window
-        self.train_window.setWindowModality(QtCore.Qt.ApplicationModal)
+        #self.train_window.setWindowModality(QtCore.Qt.ApplicationModal)
         self.train_window.show()
 
     def show_construct(self):
         self.construct_window = construct_class.ConstructWindow(stdout=self.stdout)
-        self.construct_window.setWindowModality(QtCore.Qt.ApplicationModal)
+        #self.construct_window.setWindowModality(QtCore.Qt.ApplicationModal)
         self.construct_window.show()
 
     def show_check(self):
         self.check_window = check_class.CheckWindow(old_stdout=self.stdout)
         sys.stdout = self.check_window
-        self.check_window.setWindowModality(QtCore.Qt.ApplicationModal)
+        #self.check_window.setWindowModality(QtCore.Qt.ApplicationModal)
         self.check_window.show()
 
 '''
@@ -59,7 +59,8 @@ def prepare_dataset():
                 shutil.move(os.path.join(folder, file), os.path.join(val, cat, file))
             else:
                 shutil.move(os.path.join(folder, file), os.path.join(test, cat, file))
-'''    
+'''   
+ 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     window = MainWindow()

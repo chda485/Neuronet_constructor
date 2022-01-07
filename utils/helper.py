@@ -22,7 +22,7 @@ LISTS_NEURONETS = {
 
 
 LIST_LOSSES = {
-    "BinaryCrossentropy": "binary_crossentropy", "CategoricalCrossentropy": "categorical_crossentropy",
+    "BinaryCrossentropy": "binary_crossentroproot_mean_squared_errory", "CategoricalCrossentropy": "categorical_crossentropy",
     "SparseCategorical": "sparse_categorical_crossentropy", "Poisson": "poisson",
     "KLDivergence": "kl_divergence", "MAE": "mae", "MSE": "mse",
     "MAEPercentage": "mean_absolute_percentage_error", "MSEPLogarithmic": "mean_squared_logarithmic_error",
@@ -49,12 +49,18 @@ LIST_METRICS = {
     "SensitivityAtSpecificity": "sensitivity_at_specificity",
     "SpecificityAtSensitivity": "specificity_at_sensitivity", 
     "MeanIoU": "mean_io_u", "Hinge": "hinge", "SquaredHinge": "squared_hinge", "CategoricalHinge": "categorical_hinge"
-    }
+}
 
 LIST_ADJUST_ONLY_METRICS = [
     "PrecisionAtRecall", "SensitivityAtSpecificity",
     "SpecificityAtSensitivity", "MeanIoU"
 ]
+
+LIST_WITH_CLASS_METRICS = {
+    "AUC": "auc_1", "RootMSE": "root_mean_squared_error",
+    "TruePositives": "true_positives_1", "TrueNegatives": "true_negatives_1",
+    "FalsePositives": "false_positives_1", "FalseNegatives": "false_negatives_1"
+}
 
 LIST_OPTS = ["SGD", "RMSprop", "Adam", "Adadelta",
              "Nadam", "Adagrad", "Adamax", "Ftrl"]
@@ -194,19 +200,25 @@ def include_function(path, current):#
 def show_plot(metric, H, epochs, path=None, save_plots=False):
     plt.style.use("ggplot")
     plt.figure()
-    
+    if type(LIST_METRICS[metric]) is str:
+        train = LIST_METRICS[metric]
+    else:
+        train = LIST_WITH_CLASS_METRICS[metric]
     plt.plot(np.arange(0, epochs), H.history["loss"], label="train_loss")
-    plt.plot(np.arange(0, epochs), H.history["accuracy"], label="train_accuracy")
+    plt.plot(np.arange(0, epochs), H.history[train], label="train_" + train)
     plt.plot(np.arange(0, epochs), H.history["val_loss"], label="val_loss")
-    plt.plot(np.arange(0, epochs), H.history["val_accuracy"], label="val_accuracy")
+    plt.plot(np.arange(0, epochs), H.history["val_"  + train], label="val_" + train)
     plt.title("Training plots")
     plt.xlabel("Epoch")
     plt.ylabel("Loss/accuracy")
     plt.legend()
-    if save_plots:
+    if path is not None:
         plt.savefig(path)
+        if save_plots:
+            plt.show()
     else:
         plt.show()
+        print("hello")
 
 def print_predictions(model, target_names, batch, testX, testY):
     predictions = model.predict(testX, batch_size=batch)
