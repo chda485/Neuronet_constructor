@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QMainWindow
-from PyQt5 import QtWidgets, QtCore
+from PyQt5 import QtWidgets, QtCore, QtGui
 from forms import train_window
 import construct_class, settings_class
 import sys, os
@@ -7,16 +7,14 @@ sys.path.append("utils")
 from utils import helper 
 from utils.net_builder import NetBuilder
 import numpy as np
-from keras.models import load_model
+from keras.models import load_model   
 
 class TrainWindow(QMainWindow):
     def __init__(self, old_stdout=None, parent=None):
         QMainWindow.__init__(self, parent)
         self.ui = train_window.Ui_MainWindow()
         self.ui.setupUi(self)
-        #установка вывода в консоль если делали перенаправление, для корректной работы отладочных print
-        self.old_stdout = old_stdout
-        #sys.stdout = old_stdout
+        self.old_std = None
 
         self.setWindowTitle("Обучение нейросети")
         self.ui.close_button.clicked.connect(self.close)
@@ -375,7 +373,7 @@ class TrainWindow(QMainWindow):
             from keras.utils.vis_utils import plot_model
             #собираем путь к сохраняемому файлу
             if len(self.diagramm_file) != 0:
-                path = self.diagramm_file + "\{}.png".format(self.ui.list_of_nets.currentText())
+                path = self.diagramm_file
             #пишем название файла, если только отображаем диаграмму
             else:
                 path = "{}.png".format(self.ui.list_of_nets.currentText())
@@ -389,12 +387,12 @@ class TrainWindow(QMainWindow):
                 os.remove(path)
 
         #делаем отмену вывода в консоль хода обучения, если на выбрали опцию подробного отчета
-       # if not self.ui.otchet_check.isChecked():
-            #devnull = open(os.devnull, "w")
-            #old = sys.stdout
-            #sys.stdout = devnull
+        if not self.ui.otchet_check.isChecked():
+            w = open(os.devnull, "w")
+            self.old_std = sys.stdout
+            sys.stdout = w
         
-        results, model = builder.model_train(model, self.opt, self.loss, self.metric,
+        results, model, detail = builder.model_train(model, self.opt, self.loss, self.metric,
                                             self.ui.epochs.text(), self.dataset_path,
                                             detail_result=self.ui.result_check.isChecked(),
                                             from_disk=from_disk)
@@ -402,8 +400,11 @@ class TrainWindow(QMainWindow):
         self.again_train = True
         self.clear_settings()
         
-        #if not self.ui.otchet_check.isChecked():
-         #   sys.stdout = old
+        if not self.ui.otchet_check.isChecked():
+            sys.stdout = self.old_std
+            
+        if detail != None:
+            self.ui.console_train.append(detail)
         
         plots = self.ui.display_plots.isChecked()
         #если выбрана опция показа графиков обучения либо их сохранение в файл
@@ -423,13 +424,13 @@ class TrainWindow(QMainWindow):
 
         if os.path.exists("incl_fun.py"):
             os.remove("incl_fun.py")
-            
-        #print(results[0])
-        
-
+               
     def write(self, text):
-        text = str(text).replace('\n', '').replace('0', '')
-        self.ui.console_train.append(text)
-        
+        cursor = self.ui.console_train.textCursor()
+        cursor.movePosition(QtGui.QTextCursor.End)
+        cursor.insertText(text)
+        self.ui.console_train.setTextCursor(cursor)
+        self.ui.console_train.ensureCursorVisible()
+
     def flush(self):
-        sys.stdout = self.old_stdout
+        pass

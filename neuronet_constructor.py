@@ -4,7 +4,11 @@ from PyQt5 import QtCore, QtGui
 from forms import main
 import check_class, construct_class, train_class, sys
 
-
+from utils import nets
+net = nets.LeNet.build((32,32,3), 10)
+from keras.utils.vis_utils import plot_model
+plot_model(net)
+ 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
         QMainWindow.__init__(self, parent)

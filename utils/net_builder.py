@@ -104,7 +104,8 @@ class NetBuilder():
         #ЕСЛИ ДЕЛАЛИ БЛОКИРОВКУ, ЗДЕСЬ СНЯТЬ ЕЁ
         
         if detail_result:           
-            helper.print_predictions(model, self.classes, batch_size,
-                                     X[2], Y[2])
-        return H, model
+            detail = helper.print_predictions(model, self.classes, batch_size,
+                                              X[2], Y[2])
+        else: detail = None
+        return H, model, detail
     

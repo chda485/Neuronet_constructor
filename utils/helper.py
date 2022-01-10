@@ -6,7 +6,6 @@ from sklearn.metrics import classification_report
 from keras import applications as ready_net
 import numpy as np
 
-
 LISTS_NEURONETS = {
     "LeNet": nets.LeNet, "AlexNet": nets.AlexNet,
     "MiniVGGNet": nets.MiniVGGNet, "ShallowNet": nets.ShallowNet,
@@ -22,7 +21,7 @@ LISTS_NEURONETS = {
 
 
 LIST_LOSSES = {
-    "BinaryCrossentropy": "binary_crossentroproot_mean_squared_errory", "CategoricalCrossentropy": "categorical_crossentropy",
+    "BinaryCrossentropy": "binary_crossentropy", "CategoricalCrossentropy": "categorical_crossentropy",
     "SparseCategorical": "sparse_categorical_crossentropy", "Poisson": "poisson",
     "KLDivergence": "kl_divergence", "MAE": "mae", "MSE": "mse",
     "MAEPercentage": "mean_absolute_percentage_error", "MSEPLogarithmic": "mean_squared_logarithmic_error",
@@ -222,9 +221,9 @@ def show_plot(metric, H, epochs, path=None, save_plots=False):
 
 def print_predictions(model, target_names, batch, testX, testY):
     predictions = model.predict(testX, batch_size=batch)
-    print(classification_report(testY.argmax(axis=1),
+    return classification_report(testY.argmax(axis=1),
                                 predictions.argmax(axis=1),
-                                target_names=target_names))
+                                target_names=target_names)
 
 def construct_tuple(str_):
     s = np.asarray(str_.split(','))
@@ -256,3 +255,4 @@ def rank5_accuracy(preds, labels):
     rank5 /= float(len(labels))
 
     return (rank1, rank5)
+
